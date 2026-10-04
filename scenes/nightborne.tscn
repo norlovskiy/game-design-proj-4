@@ -1,0 +1,31 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://s6yjo5cqefbl" path="res://scripts/nightborne.gd" id="2_nightborne"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(18, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
+size = Vector2(46, 38)
+
+[node name="NightBorne" type="CharacterBody2D" unique_id=1808139832]
+floor_snap_length = 4.0
+script = ExtResource("2_nightborne")
+max_health = 5
+
+[node name="Hitbox" type="CollisionShape2D" parent="." unique_id=784416597]
+position = Vector2(0, -15)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=470673607]
+texture_filter = 1
+position = Vector2(0, -24)
+
+[node name="AttackHitbox" type="Area2D" parent="." unique_id=1087114509]
+position = Vector2(27, -22)
+collision_layer = 0
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHitbox" unique_id=49654291]
+shape = SubResource("RectangleShape2D_attack")
+disabled = true
