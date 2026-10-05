@@ -141,7 +141,7 @@ func _set_state(next_state: State) -> void:
 		State.HURT:
 			_sprite.play(&"hurt")
 		State.DEAD:
-			$Hitbox.set_deferred("disabled", true)
+			collision_layer = 0
 			_sprite.play(&"death")
 
 
