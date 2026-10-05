@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://pa61iqk5v025"]
 
 [ext_resource type="PackedScene" uid="uid://clt6j28p275kk" path="res://scenes/player.tscn" id="1_o5qli"]
+[ext_resource type="PackedScene" path="res://scenes/nightborne.tscn" id="2_nightborne"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1152, 40)
@@ -9,6 +10,9 @@ size = Vector2(1152, 40)
 
 [node name="Player" parent="." unique_id=920989453 instance=ExtResource("1_o5qli")]
 position = Vector2(311, 190)
+
+[node name="NightBorne" parent="." instance=ExtResource("2_nightborne")]
+position = Vector2(510, 200)
 
 [node name="Ground" type="StaticBody2D" parent="."]
 position = Vector2(576, 220)

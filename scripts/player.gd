@@ -9,6 +9,9 @@ const JUMP_VELOCITY := -400.0
 const HIT_RECOVERY_DURATION := 0.25
 const HIT_FLASH_DURATION := 0.15
 const HIT_INVINCIBILITY_DURATION := 1.0
+const WORLD_COLLISION_LAYER := 1
+const ENEMY_COLLISION_LAYER := 4
+const NORMAL_COLLISION_MASK := WORLD_COLLISION_LAYER | ENEMY_COLLISION_LAYER
 
 @export_range(1, 10) var max_lives := 3
 
@@ -90,6 +93,8 @@ func _advance_hit_state(delta: float) -> void:
 
 func _start_roll(horizontal_input: int) -> void:
 	is_rolling = true
+	collision_layer = 0
+	collision_mask = WORLD_COLLISION_LAYER
 	if horizontal_input != 0:
 		roll_direction = horizontal_input
 	else:
@@ -99,6 +104,8 @@ func _start_roll(horizontal_input: int) -> void:
 
 func _end_roll() -> void:
 	is_rolling = false
+	collision_layer = WORLD_COLLISION_LAYER
+	collision_mask = NORMAL_COLLISION_MASK
 
 
 func _update_animation(horizontal_input: int) -> void:
@@ -148,6 +155,7 @@ func take_hit() -> bool:
 
 func _die() -> void:
 	is_dead = true
+	remove_from_group(&"player")
 	animated_sprite.modulate = Color.WHITE
 	$Hitbox.set_deferred("monitoring", false)
 	_play_animation("death")

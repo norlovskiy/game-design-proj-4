@@ -376,6 +376,7 @@ size = Vector2(15, 37)
 [node name="Player" type="Node2D" unique_id=920989453]
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["player"] unique_id=287472683]
+collision_mask = 5
 script = ExtResource("1_qhqgy")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D" unique_id=477198059]
@@ -390,6 +391,7 @@ shape = SubResource("RectangleShape2D_iq1xx")
 [node name="Hitbox" type="Area2D" parent="CharacterBody2D"]
 position = Vector2(0, -9)
 collision_layer = 0
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/Hitbox"]
 shape = SubResource("RectangleShape2D_hitbox")

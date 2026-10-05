@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://d14alafdoekcn"]
+[gd_scene format=3 uid="uid://d14alafdoekcn"]
 
 [ext_resource type="Script" uid="uid://cqpgk8y2kjm55" path="res://scripts/enemy.gd" id="1_enemy"]
 
@@ -6,6 +6,8 @@
 size = Vector2(32, 32)
 
 [node name="Enemy" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
 script = ExtResource("1_enemy")
 
 [node name="Hitbox" type="CollisionShape2D" parent="."]
