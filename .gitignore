@@ -2,3 +2,6 @@
 .godot/
 /android/
 addons
+
+# Obsidian workspace state
+design-docs/.obsidian/

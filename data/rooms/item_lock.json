@@ -1,0 +1,14 @@
+{
+	"name": "item_lock",
+	"tiles": [
+		"#DD##",
+		"#...#",
+		"#...D",
+		"#...D",
+		"#####"
+	],
+	"doors": {
+		"top_0": {"role": "entry"},
+		"right_0": {"role": "locked", "reserved": "goal", "requires": "key"}
+	}
+}

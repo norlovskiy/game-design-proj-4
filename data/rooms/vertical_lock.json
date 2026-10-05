@@ -1,0 +1,27 @@
+{
+	"name": "vertical_lock",
+	"tiles": [
+		"#######",
+		"#.....D",
+		"D.....D",
+		"D.....#",
+		"###...#",
+		"#.....#",
+		"#.....#",
+		"#...###",
+		"#.....#",
+		"###...#",
+		"#.....#",
+		"#.....#",
+		"#.##..#",
+		"D.....D",
+		"D.....D",
+		"#######"
+	],
+	"doors": {
+		"left_0": {"role": "upper_a", "reserved": "reward"},
+		"right_0": {"role": "upper_b", "reserved": "key", "requires": "double_jump"},
+		"left_1": {"role": "lower_a"},
+		"right_1": {"role": "lower_b"}
+	}
+}
