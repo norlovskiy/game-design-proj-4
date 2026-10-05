@@ -6,20 +6,15 @@ const SPRITE_SHEET: Texture2D = preload(
 const FRAME_SIZE := Vector2(140.0, 93.0)
 const ACTIVE_FRAMES := [5, 6, 7, 8, 9, 10, 11, 12]
 
-@export var damage: int = 2
-
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var _damage_shape: CollisionShape2D = $DamageArea/CollisionShape2D
 
-var _is_active := false
-var _hit_targets: Array[int] = []
 
 
 func _ready() -> void:
 	_sprite.sprite_frames = _create_sprite_frames()
 	_sprite.frame_changed.connect(_on_frame_changed)
 	_sprite.animation_finished.connect(_on_animation_finished)
-	$DamageArea.body_entered.connect(_on_body_entered)
 	_set_active(false)
 	_sprite.play(&"spell")
 
@@ -29,21 +24,7 @@ func _on_frame_changed() -> void:
 
 
 func _set_active(active: bool) -> void:
-	_is_active = active
 	_damage_shape.set_deferred("disabled", not active)
-
-
-func _on_body_entered(body: Node2D) -> void:
-	if not _is_active or not body.is_in_group(&"player"):
-		return
-
-	var body_id := body.get_instance_id()
-	if body_id in _hit_targets:
-		return
-	_hit_targets.append(body_id)
-
-	if body.has_method("take_damage"):
-		body.take_damage(damage)
 
 
 func _on_animation_finished() -> void:

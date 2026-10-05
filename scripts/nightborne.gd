@@ -29,7 +29,6 @@ const ATTACK_ACTIVE_FRAMES := [9, 10]
 
 @export_category("Attack")
 @export var attack_range: float = 46.0
-@export var attack_damage: int = 1
 @export var attack_cooldown: float = 0.65
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -40,8 +39,6 @@ var _state: State = State.IDLE
 var _target: Node2D
 var _facing: float = 1.0
 var _cooldown_remaining: float = 0.0
-var _attack_active := false
-var _hit_targets: Array[int] = []
 var _gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity", 980.0)
 
 
@@ -49,7 +46,6 @@ func _ready() -> void:
 	_sprite.sprite_frames = _create_sprite_frames()
 	_sprite.animation_finished.connect(_on_animation_finished)
 	_sprite.frame_changed.connect(_on_frame_changed)
-	_attack_hitbox.body_entered.connect(_on_attack_hitbox_body_entered)
 	_set_attack_active(false)
 	_find_target()
 	_set_state(State.IDLE)
@@ -82,7 +78,7 @@ func take_damage(amount: int) -> void:
 
 
 func _update_movement(delta: float) -> void:
-	if not is_instance_valid(_target):
+	if not is_instance_valid(_target) or not _target.is_in_group(&"player"):
 		_find_target()
 
 	if not is_instance_valid(_target):
@@ -141,12 +137,11 @@ func _set_state(next_state: State) -> void:
 		State.RUN:
 			_sprite.play(&"run")
 		State.ATTACK:
-			_hit_targets.clear()
 			_sprite.play(&"attack")
 		State.HURT:
 			_sprite.play(&"hurt")
 		State.DEAD:
-			$Hitbox.set_deferred("disabled", true)
+			collision_layer = 0
 			_sprite.play(&"death")
 
 
@@ -156,21 +151,7 @@ func _on_frame_changed() -> void:
 
 
 func _set_attack_active(active: bool) -> void:
-	_attack_active = active
 	_attack_shape.set_deferred("disabled", not active)
-
-
-func _on_attack_hitbox_body_entered(body: Node2D) -> void:
-	if not _attack_active or not body.is_in_group(&"player"):
-		return
-
-	var body_id := body.get_instance_id()
-	if body_id in _hit_targets:
-		return
-	_hit_targets.append(body_id)
-
-	if body.has_method("take_damage"):
-		body.take_damage(attack_damage)
 
 
 func _on_animation_finished() -> void:

@@ -9,6 +9,8 @@ size = Vector2(28, 54)
 size = Vector2(110, 64)
 
 [node name="BringerOfDeath" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
 floor_snap_length = 4.0
 script = ExtResource("1_bringer")
 max_health = 15
@@ -21,11 +23,10 @@ shape = SubResource("RectangleShape2D_body")
 texture_filter = 1
 position = Vector2(-35, -46.5)
 
-[node name="AttackHitbox" type="Area2D" parent="."]
+[node name="AttackHitbox" type="Area2D" parent="." groups=["enemy_hitboxes"]]
 position = Vector2(-48, -34)
-collision_layer = 0
-collision_mask = 1
-monitorable = false
+collision_layer = 2
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHitbox"]
 shape = SubResource("RectangleShape2D_attack")

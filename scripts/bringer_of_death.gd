@@ -54,12 +54,10 @@ const CAST_FRAMES := [
 
 @export_category("Melee Attack")
 @export var melee_range: float = 72.0
-@export var melee_damage: int = 2
 @export var melee_cooldown: float = 0.9
 
 @export_category("Spell Attack")
 @export var spell_range: float = 280.0
-@export var spell_damage: int = 3
 @export var spell_cooldown: float = 3.0
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -71,8 +69,6 @@ var _target: Node2D
 var _facing: float = -1.0
 var _melee_cooldown_remaining := 0.0
 var _spell_cooldown_remaining := 0.0
-var _attack_active := false
-var _hit_targets: Array[int] = []
 var _cast_position := Vector2.ZERO
 var _spell_spawned := false
 var _gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity", 980.0)
@@ -82,7 +78,6 @@ func _ready() -> void:
 	_sprite.sprite_frames = _create_sprite_frames()
 	_sprite.animation_finished.connect(_on_animation_finished)
 	_sprite.frame_changed.connect(_on_frame_changed)
-	_attack_hitbox.body_entered.connect(_on_attack_hitbox_body_entered)
 	_set_attack_active(false)
 	_find_target()
 	_set_state(State.IDLE)
@@ -116,7 +111,7 @@ func take_damage(amount: int) -> void:
 
 
 func _update_behavior(delta: float) -> void:
-	if not is_instance_valid(_target):
+	if not is_instance_valid(_target) or not _target.is_in_group(&"player"):
 		_find_target()
 
 	if not is_instance_valid(_target):
@@ -184,7 +179,6 @@ func _set_state(next_state: State) -> void:
 		State.WALK:
 			_sprite.play(&"walk")
 		State.ATTACK:
-			_hit_targets.clear()
 			_sprite.play(&"attack")
 		State.CAST:
 			_spell_spawned = false
@@ -192,7 +186,7 @@ func _set_state(next_state: State) -> void:
 		State.HURT:
 			_sprite.play(&"hurt")
 		State.DEAD:
-			$Hitbox.set_deferred("disabled", true)
+			collision_layer = 0
 			_sprite.play(&"death")
 
 
@@ -205,27 +199,12 @@ func _on_frame_changed() -> void:
 
 
 func _set_attack_active(active: bool) -> void:
-	_attack_active = active
 	_attack_shape.set_deferred("disabled", not active)
-
-
-func _on_attack_hitbox_body_entered(body: Node2D) -> void:
-	if not _attack_active or not body.is_in_group(&"player"):
-		return
-
-	var body_id := body.get_instance_id()
-	if body_id in _hit_targets:
-		return
-	_hit_targets.append(body_id)
-
-	if body.has_method("take_damage"):
-		body.take_damage(melee_damage)
 
 
 func _spawn_spell() -> void:
 	_spell_spawned = true
 	var spell := SPELL_SCENE.instantiate()
-	spell.damage = spell_damage
 	var spell_parent := get_tree().current_scene
 	if not is_instance_valid(spell_parent):
 		spell_parent = get_parent()

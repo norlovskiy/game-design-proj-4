@@ -12,11 +12,10 @@ script = ExtResource("1_spell")
 texture_filter = 1
 position = Vector2(2, -46.5)
 
-[node name="DamageArea" type="Area2D" parent="."]
+[node name="DamageArea" type="Area2D" parent="." groups=["enemy_hitboxes"]]
 position = Vector2(0, -29)
-collision_layer = 0
-collision_mask = 1
-monitorable = false
+collision_layer = 2
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DamageArea"]
 shape = SubResource("RectangleShape2D_spell")
