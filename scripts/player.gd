@@ -5,7 +5,7 @@ signal died
 
 const MOVE_SPEED := 200.0
 const ROLL_SPEED := 320.0
-const JUMP_VELOCITY := -400.0
+const JUMP_VELOCITY := -460.0
 const HIT_RECOVERY_DURATION := 0.25
 const HIT_FLASH_DURATION := 0.15
 const HIT_INVINCIBILITY_DURATION := 1.0
