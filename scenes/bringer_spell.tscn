@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://dtkw58ct0dcjf" path="res://scripts/bringer_spell.gd" id="1_spell"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_spell"]
+size = Vector2(34, 58)
+
+[node name="BringerSpell" type="Node2D"]
+script = ExtResource("1_spell")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(2, -46.5)
+
+[node name="DamageArea" type="Area2D" parent="."]
+position = Vector2(0, -29)
+collision_layer = 0
+collision_mask = 1
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DamageArea"]
+shape = SubResource("RectangleShape2D_spell")
+disabled = true
