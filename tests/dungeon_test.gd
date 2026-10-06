@@ -60,8 +60,49 @@ func _init() -> void:
 		if dungeon.spawn_position() == Vector2.ZERO:
 			_fail("no spawn position")
 
+	_check_exploration(dungeon)
+
 	print("%d seeds, %d failures, %d prop tiles placed" % [SEEDS, _failures, decorated])
 	quit(1 if _failures > 0 else 0)
+
+
+func _check_exploration(dungeon: Dungeon) -> void:
+	dungeon.generate(1)
+	var map := dungeon.result
+	if dungeon.explored.size() != 1:
+		_fail("a fresh dungeon should have only the start piece explored")
+	var glowing := 0
+	for y in map.size.y:
+		for x in map.size.x:
+			if dungeon._fog_image.get_pixel(x, y).g > 0.5:
+				glowing += 1
+	if glowing == 0:
+		_fail("no door glows next to the start room")
+	var target := -1
+	for piece in map.pieces:
+		if not dungeon.explored.has(piece.index):
+			target = piece.index
+			break
+	var cell := Vector2i.ZERO
+	for y in map.size.y:
+		for x in map.size.x:
+			if map.get_owner(x, y) == target:
+				cell = Vector2i(x, y)
+	if dungeon._fog_image.get_pixel(cell.x, cell.y).r != 0.0:
+		_fail("unexplored cell is not fogged")
+	if dungeon.piece_at((Vector2(cell) + Vector2(0.5, 0.5)) * dungeon.cell_size()) != target:
+		_fail("piece_at found the wrong piece")
+	dungeon.explore(target)
+	dungeon._process(dungeon.fade_time / 2.0)
+	var halfway := dungeon._fog_image.get_pixel(cell.x, cell.y).r
+	if halfway < 0.3 or halfway > 0.7:
+		_fail("fade is not gradual (%f at half time)" % halfway)
+	dungeon._process(dungeon.fade_time)
+	if dungeon._fog_image.get_pixel(cell.x, cell.y).r != 1.0:
+		_fail("explored cell is still fogged")
+	dungeon.generate(1)
+	if dungeon.explored.size() != 1:
+		_fail("rebuilding did not reset exploration")
 
 
 func _check_tile_exists(theme: DungeonTheme, layer: TileMapLayer, at: Vector2i) -> void:

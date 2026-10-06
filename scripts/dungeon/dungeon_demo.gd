@@ -20,6 +20,10 @@ func _ready() -> void:
 	add_child(layer)
 	_seed_label.position = Vector2(8, 8)
 	layer.add_child(_seed_label)
+	var map := DungeonMap.new()
+	map.setup(dungeon, player_body)
+	add_child(map)
+	dungeon.track(player_body)
 	enter_dungeon(randi() % 1000000)
 
 
@@ -31,7 +35,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func enter_dungeon(map_seed: int) -> void:
 	if not dungeon.generate(map_seed):
 		return
-	_seed_label.text = "Seed %d  (R: new dungeon)" % dungeon.result.map_seed
+	_seed_label.text = "Seed %d  (R: new dungeon, Tab: map)" % dungeon.result.map_seed
 	# The body's origin sits 10 px above the bottom of its collision shape.
 	player_body.global_position = dungeon.to_global(dungeon.spawn_position()) + Vector2(0, -10)
 	player_body.velocity = Vector2.ZERO
