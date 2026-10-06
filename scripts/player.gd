@@ -5,6 +5,7 @@ signal resources_changed(hp: int, stamina: float, mana: float)
 signal equipment_changed(slot: int, icon: Texture2D)
 signal potions_changed(count: int)
 signal gold_changed(amount: int)
+signal keys_changed(count: int)
 signal died
 
 const MOVE_SPEED := 200.0
@@ -50,6 +51,7 @@ var staff_variant := -1
 var ring_variant := -1
 var potion_count := 0
 var gold := 0
+var key_count := 0
 var health_regen_elapsed := 0.0
 var roll_direction := 1
 var jump_was_pressed := false
@@ -241,6 +243,9 @@ func receive_pickup(kind: int, variant: int) -> bool:
 		ItemPickup.Kind.RED_POTION:
 			potion_count += 1
 			potions_changed.emit(potion_count)
+		ItemPickup.Kind.KEY:
+			key_count += 1
+			keys_changed.emit(key_count)
 		_:
 			return false
 	return true
@@ -281,6 +286,15 @@ func spend_gold(amount: int) -> bool:
 	return true
 
 
+## Spends a key if the player has one.
+func use_key() -> bool:
+	if key_count <= 0:
+		return false
+	key_count -= 1
+	keys_changed.emit(key_count)
+	return true
+
+
 ## The pickup in reach that the pickup key would take: the closest one.
 func get_pickup_target() -> ItemPickup:
 	var closest: ItemPickup
@@ -299,6 +313,12 @@ func _try_pickup() -> void:
 	var target := get_pickup_target()
 	if target != null:
 		target.collect(self)
+		return
+	# Nothing to pick up: use whatever else is in reach, such as a locked door.
+	for area in pickup_area.get_overlapping_areas():
+		if area is Interactable:
+			(area as Interactable).interact(self)
+			return
 
 
 func _try_cast_staff(horizontal_input: int = 0) -> void:

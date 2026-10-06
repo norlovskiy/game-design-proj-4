@@ -102,6 +102,7 @@ func _spawn_boss() -> void:
 		boss.position = (Vector2(best) + Vector2(0.5, 1.0)) * _dungeon.cell_size()
 		_parent.add_child(boss)
 		_spawned.append(boss)
+		_dungeon.boss = boss
 		return
 
 

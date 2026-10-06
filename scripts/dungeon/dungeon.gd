@@ -16,6 +16,10 @@ const S := DungeonTileRule.Situation
 signal explored_changed
 
 const FOG_SHADER := preload("res://shaders/dungeon_fog.gdshader")
+const GATE_SCENE: PackedScene = preload("res://scenes/dungeon_gate.tscn")
+## How many cells past its doorway the player must be before the boss gate
+## shuts behind them.
+const BOSS_GATE_DEPTH := 2
 
 @export var theme: DungeonTheme
 ## Enemies to spawn after painting. Leave empty for a dungeon with none.
@@ -33,6 +37,13 @@ var foreground: TileMapLayer
 var enemies: Node2D
 ## Spawned pickups live under this node.
 var items: Node2D
+## Door gates live under this node, drawn behind the bricks so a raised gate
+## is hidden by the wall above its doorway.
+var gates: Node2D
+## The boss, while it exists. Set by the spawner.
+var boss: Node2D
+## The gate at the boss room's entrance, if there is a boss.
+var boss_gate: DungeonGate
 ## Indices of the pieces the player has entered.
 var explored := {}
 
@@ -67,7 +78,12 @@ func build(map: MapGenerator.Result) -> void:
 		child.free()
 	background = _add_layer("Background")
 	props = _add_layer("Props")
+	gates = Node2D.new()
+	gates.name = "Gates"
+	add_child(gates)
 	foreground = _add_layer("Foreground")
+	boss = null
+	boss_gate = null
 
 	for y in result.size.y:
 		for x in result.size.x:
@@ -93,6 +109,7 @@ func build(map: MapGenerator.Result) -> void:
 	add_child(items)
 	if item_table != null:
 		DungeonItemSpawner.populate(self, item_table, items)
+	_build_gates()
 	_build_fog()
 	explored.clear()
 	_fades.clear()
@@ -115,7 +132,51 @@ func _process(delta: float) -> void:
 			explore(index)
 		if "is_safe" in _tracked:
 			_tracked.is_safe = index >= 0 and result.pieces[index].name in safe_rooms
+	_update_boss_gate()
 	_advance_fades(delta)
+
+
+## Puts a lowered, key-locked gate in every door that needs a key, and a
+## raised gate at the boss room's entrance.
+func _build_gates() -> void:
+	for piece: MapPiece in result.pieces:
+		for door in piece.doors:
+			if door.used and door.zone_add & MapPiece.ZONE_ITEM_LOCK:
+				_add_gate(piece, door, true, true)
+		if spawn_table != null and spawn_table.boss != null and piece.name == spawn_table.boss_piece \
+				and piece.entry_door != null:
+			boss_gate = _add_gate(piece, piece.entry_door, false, false)
+
+
+func _add_gate(piece: MapPiece, door: MapPiece.Door, starts_closed: bool, needs_key: bool) -> DungeonGate:
+	var first: Vector2i = piece.pos + door.cells[0]
+	var last: Vector2i = piece.pos + door.cells[door.cells.size() - 1]
+	var gate: DungeonGate = GATE_SCENE.instantiate()
+	gate.setup(Vector2(last - first + Vector2i.ONE) * cell_size(), starts_closed, needs_key)
+	gate.position = Vector2(first) * cell_size()
+	gate.set_meta("cell", first)
+	gates.add_child(gate)
+	return gate
+
+
+## Shuts the boss in with the player once they are well inside the arena, and
+## lets them out again when the boss is dead.
+func _update_boss_gate() -> void:
+	if boss_gate == null:
+		return
+	var boss_alive: bool = is_instance_valid(boss) and boss.get("health") != 0
+	if boss_gate.closed:
+		if not boss_alive:
+			boss_gate.open()
+		return
+	if not boss_alive or _tracked == null:
+		return
+	var cell := Vector2i((to_local(_tracked.global_position) / cell_size()).floor())
+	var door_cell: Vector2i = boss_gate.get_meta("cell")
+	var inside := piece_at(to_local(_tracked.global_position))
+	if inside >= 0 and result.pieces[inside].name == spawn_table.boss_piece \
+			and absi(cell.x - door_cell.x) >= BOSS_GATE_DEPTH:
+		boss_gate.close()
 
 
 ## Index of the piece covering a local position, or -1 for rock and outside.

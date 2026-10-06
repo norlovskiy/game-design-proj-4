@@ -5,6 +5,8 @@ extends CanvasLayer
 @onready var mana_bar: TextureProgressBar = $Layout/ManaBar
 @onready var potion_count_label: Label = $Layout/PotionCounter/Count
 @onready var gold_count_label: Label = $Layout/GoldCounter/Count
+@onready var key_counter: Control = $Layout/KeyCounter
+@onready var key_count_label: Label = $Layout/KeyCounter/Count
 @onready var item_slots: Array[TextureRect] = [
 	$Layout/ItemFrames/ItemSlot1,
 	$Layout/ItemFrames/ItemSlot2,
@@ -27,6 +29,8 @@ func _ready() -> void:
 	player.gold_changed.connect(_on_gold_changed)
 	_on_potions_changed(player.potion_count)
 	_on_gold_changed(player.gold)
+	player.keys_changed.connect(_on_keys_changed)
+	_on_keys_changed(player.key_count)
 	for slot in item_slots.size():
 		_on_equipment_changed(slot, player.get_equipped_icon(slot))
 
@@ -50,3 +54,9 @@ func _on_potions_changed(count: int) -> void:
 
 func _on_gold_changed(amount: int) -> void:
 	gold_count_label.text = "%d" % amount
+
+
+## The key counter only shows while the player is carrying a key.
+func _on_keys_changed(count: int) -> void:
+	key_counter.visible = count > 0
+	key_count_label.text = "%d" % count

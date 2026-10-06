@@ -52,6 +52,16 @@ weight = 2.0
 script = ExtResource("2_pool")
 entries = Array[ExtResource("3_entry")]([SubResource("Entry_sword"), SubResource("Entry_staff_0"), SubResource("Entry_staff_1"), SubResource("Entry_staff_2"), SubResource("Entry_ring_0"), SubResource("Entry_ring_1"), SubResource("Entry_ring_2"), SubResource("Entry_red_potion")])
 
+[sub_resource type="Resource" id="Entry_key"]
+script = ExtResource("3_entry")
+kind = 4
+
+[sub_resource type="Resource" id="Pool_key_room"]
+script = ExtResource("2_pool")
+rooms = PackedStringArray("item_key")
+entries = Array[ExtResource("3_entry")]([SubResource("Entry_key")])
+allow_repeats = true
+
 [sub_resource type="Resource" id="Pool_shop"]
 script = ExtResource("2_pool")
 rooms = PackedStringArray("shop")
@@ -63,4 +73,4 @@ skip_placed = true
 
 [resource]
 script = ExtResource("1_table")
-pools = Array[ExtResource("2_pool")]([SubResource("Pool_item_rooms"), SubResource("Pool_shop")])
+pools = Array[ExtResource("2_pool")]([SubResource("Pool_item_rooms"), SubResource("Pool_key_room"), SubResource("Pool_shop")])
