@@ -4,7 +4,8 @@ extends Node2D
 ##
 ## Builds three TileMapLayers: Background (wall and wall decorations), Props
 ## (transparent decorations) and Foreground (bricks and platforms, with
-## collision). The same seed and theme always paint the same dungeon.
+## collision), then spawns enemies from the spawn table. The same seed, theme
+## and table always produce the same dungeon.
 
 const MapGenerator := preload("res://scripts/mapgen/map_generator.gd")
 const MapPiece := preload("res://scripts/mapgen/map_piece.gd")
@@ -17,11 +18,15 @@ signal explored_changed
 const FOG_SHADER := preload("res://shaders/dungeon_fog.gdshader")
 
 @export var theme: DungeonTheme
+## Enemies to spawn after painting. Leave empty for a dungeon with none.
+@export var spawn_table: DungeonSpawnTable
 
 var result: MapGenerator.Result
 var background: TileMapLayer
 var props: TileMapLayer
 var foreground: TileMapLayer
+## Spawned enemies live under this node.
+var enemies: Node2D
 ## Indices of the pieces the player has entered.
 var explored := {}
 
@@ -72,6 +77,11 @@ func build(map: MapGenerator.Result) -> void:
 					_paint_platform(x, y, piece_name)
 	for decoration in theme.decorations:
 		_place_decoration(decoration)
+	enemies = Node2D.new()
+	enemies.name = "Enemies"
+	add_child(enemies)
+	if spawn_table != null:
+		DungeonSpawner.populate(self, spawn_table, enemies)
 	_build_fog()
 	explored.clear()
 	_fades.clear()
