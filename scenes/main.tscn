@@ -1,8 +1,9 @@
 [gd_scene format=3 uid="uid://pa61iqk5v025"]
 
 [ext_resource type="PackedScene" uid="uid://clt6j28p275kk" path="res://scenes/player.tscn" id="1_o5qli"]
-[ext_resource type="PackedScene" path="res://scenes/nightborne.tscn" id="2_nightborne"]
+[ext_resource type="PackedScene" uid="uid://nl5fnuse8ago" path="res://scenes/nightborne.tscn" id="2_nightborne"]
 [ext_resource type="PackedScene" path="res://scenes/flying_demon.tscn" id="3_flying_demon"]
+[ext_resource type="PackedScene" path="res://scenes/bringer_of_death.tscn" id="4_jyhfs"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1152, 40)
@@ -17,6 +18,7 @@ position = Vector2(82, 88)
 patrol_radius = 90.0
 patrol_speed = 55.0
 patrol_bob_height = 12.0
+max_flight_height = 80.0
 aggro_range = 340.0
 disengage_range = 440.0
 move_speed = 115.0
@@ -35,6 +37,7 @@ position = Vector2(800, 105)
 patrol_radius = 90.0
 patrol_speed = 55.0
 patrol_bob_height = 12.0
+max_flight_height = 80.0
 aggro_range = 340.0
 disengage_range = 440.0
 move_speed = 115.0
@@ -54,3 +57,6 @@ shape = SubResource("RectangleShape2D_ground")
 [node name="Polygon2D" type="Polygon2D" parent="Ground" unique_id=101879550]
 color = Color(0.22, 0.24, 0.29, 1)
 polygon = PackedVector2Array(-576, -20, 576, -20, 576, 20, -576, 20)
+
+[node name="BringerOfDeath" parent="." unique_id=732615389 instance=ExtResource("4_jyhfs")]
+position = Vector2(322, 114)
