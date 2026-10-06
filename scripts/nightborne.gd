@@ -39,6 +39,7 @@ var _state: State = State.IDLE
 var _target: Node2D
 var _facing: float = 1.0
 var _cooldown_remaining: float = 0.0
+var _attack_interrupted := false
 var _gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity", 980.0)
 
 
@@ -75,6 +76,7 @@ func take_damage(amount: int) -> void:
 	if health == 0:
 		_set_state(State.DEAD)
 	elif _state != State.HURT and _should_play_hurt():
+		_attack_interrupted = _state == State.ATTACK
 		_set_state(State.HURT)
 
 
@@ -164,6 +166,9 @@ func _on_animation_finished() -> void:
 			_set_state(State.IDLE)
 		State.HURT:
 			_on_hurt_finished()
+			if _attack_interrupted:
+				_cooldown_remaining = maxf(_cooldown_remaining, Enemy.INTERRUPTED_ATTACK_COOLDOWN)
+				_attack_interrupted = false
 			_set_state(State.IDLE)
 		State.DEAD:
 			queue_free()

@@ -44,6 +44,7 @@ var _patrol_time := 0.0
 var _facing := 1.0
 var _cooldown_remaining := 0.0
 var _has_fired := false
+var _attack_interrupted := false
 var _minimum_flight_y := -INF
 
 
@@ -89,6 +90,8 @@ func take_damage(amount: int) -> void:
 	if health == 0:
 		_set_state(State.DEAD)
 	else:
+		if _state == State.SHOOT:
+			_attack_interrupted = true
 		_set_state(State.HURT)
 
 
@@ -208,6 +211,9 @@ func _on_animation_finished() -> void:
 			_cooldown_remaining = attack_cooldown
 			_set_state(State.POSITION)
 		State.HURT:
+			if _attack_interrupted:
+				_cooldown_remaining = maxf(_cooldown_remaining, Enemy.INTERRUPTED_ATTACK_COOLDOWN)
+				_attack_interrupted = false
 			_set_state(State.PATROL)
 		State.DEAD:
 			queue_free()

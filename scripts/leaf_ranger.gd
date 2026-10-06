@@ -59,6 +59,8 @@ var _attack_bag: Array[int] = []
 var _last_attack := -1
 var _attack_event_fired := false
 var _air_animation_done := false
+var _attack_interrupted := false
+var _interrupt_cooldown_remaining := 0.0
 var _cooldown := 0.0
 var _reposition_time := 0.0
 var _evade_time := 0.0
@@ -88,6 +90,7 @@ func _physics_process(delta: float) -> void:
 	if _state == State.DEAD:
 		return
 	_cooldown = maxf(_cooldown - delta, 0.0)
+	_interrupt_cooldown_remaining = maxf(_interrupt_cooldown_remaining - delta, 0.0)
 	_reposition_time = maxf(_reposition_time - delta, 0.0)
 	_evade_cooldown = maxf(_evade_cooldown - delta, 0.0)
 	if not is_on_floor():
@@ -122,6 +125,7 @@ func take_damage(amount: int) -> void:
 	if health == 0:
 		_die()
 	elif _state != State.HURT and _should_play_hurt():
+		_attack_interrupted = _state == State.ATTACK
 		_state = State.HURT
 		_current_attack = -1
 		velocity.x = 0.0
@@ -148,7 +152,8 @@ func _update_seek(delta: float) -> void:
 	var distance := absf(offset.x)
 
 	# Between attacks, make space when possible. A corner forces an invincible pass.
-	if distance < retreat_distance and (_cooldown > 0.0 or _reposition_time > 0.0):
+	if distance < retreat_distance and (_cooldown > 0.0 or _interrupt_cooldown_remaining > 0.0
+			or _reposition_time > 0.0):
 		if _can_run(-toward, 56.0):
 			_run(-toward, retreat_speed, delta)
 		elif _evade_cooldown <= 0.0:
@@ -157,7 +162,8 @@ func _update_seek(delta: float) -> void:
 			_stop(delta)
 		return
 
-	if _cooldown <= 0.0 and _reposition_time <= 0.0:
+	if _cooldown <= 0.0 and _interrupt_cooldown_remaining <= 0.0 \
+			and _reposition_time <= 0.0:
 		_refill_bag()
 		if _attack_bag[0] == Attack.MELEE and (distance > melee_range or absf(offset.y) > 54.0):
 			if _can_run(toward, 30.0):
@@ -349,6 +355,9 @@ func _on_animation_finished() -> void:
 			_state = State.SEEK
 			_sprite.speed_scale = 1.0
 			_cooldown = maxf(_cooldown, 0.3)
+			if _attack_interrupted:
+				_interrupt_cooldown_remaining = Enemy.INTERRUPTED_ATTACK_COOLDOWN
+				_attack_interrupted = false
 			_play(&"idle")
 		State.DEAD:
 			queue_free()

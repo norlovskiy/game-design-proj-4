@@ -109,7 +109,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
 	_advance_hit_state(delta)
-	_advance_resources(delta)
 	staff_cast_remaining = maxf(0.0, staff_cast_remaining - delta)
 	if combo_window_remaining > 0.0:
 		combo_window_remaining = maxf(0.0, combo_window_remaining - delta)
@@ -156,12 +155,18 @@ func _physics_process(delta: float) -> void:
 	else:
 		coyote_remaining = maxf(0.0, coyote_remaining - delta)
 
+	var was_rolling := is_rolling
 	if not is_rolling and not is_hurt and roll_just_pressed and is_on_floor() \
 		and spend_stamina(get_roll_stamina_cost()):
 		if is_attacking:
 			_cancel_attack()
 		staff_cast_remaining = 0.0
 		_start_roll(horizontal_input)
+	if was_rolling and not is_hurt:
+		if attack_just_pressed and staff_cast_remaining == 0.0:
+			_end_roll()
+		elif jump_just_pressed and is_on_floor():
+			_end_roll()
 
 	if not is_rolling and not is_hurt:
 		if attack_just_pressed and staff_cast_remaining == 0.0:
@@ -180,6 +185,7 @@ func _physics_process(delta: float) -> void:
 			velocity.y = JUMP_VELOCITY
 			_play_animation("jump")
 
+	_advance_resources(delta)
 	if is_hurt:
 		velocity.x = 0.0
 	elif (is_attacking or staff_cast_remaining > 0.0) and is_on_floor():
@@ -220,7 +226,7 @@ func _advance_resources(delta: float) -> void:
 	var changed := false
 	if stamina_regen_wait > 0.0:
 		stamina_regen_wait = maxf(0.0, stamina_regen_wait - delta)
-	elif stamina < max_stamina:
+	elif not is_attacking and stamina < max_stamina:
 		stamina = minf(max_stamina, stamina + stamina_regen_rate * delta)
 		changed = true
 	if mana_regen_wait > 0.0:
@@ -414,6 +420,7 @@ func _start_roll(horizontal_input: int) -> void:
 
 func _end_roll() -> void:
 	is_rolling = false
+	velocity.x = 0.0
 
 
 func _request_attack(horizontal_input: int) -> void:

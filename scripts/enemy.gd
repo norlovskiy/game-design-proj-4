@@ -3,6 +3,8 @@ extends CharacterBody2D
 
 const HIT_FLASH_SHADER: Shader = preload("res://shaders/hit_flash.gdshader")
 const HIT_FLASH_DURATION := 0.15
+## Recovery time after a player hit interrupts an attack, once hurt ends.
+const INTERRUPTED_ATTACK_COOLDOWN := 0.5
 const COIN_SCENE: PackedScene = preload("res://scenes/coin.tscn")
 const ITEM_PICKUP_SCENE: PackedScene = preload("res://scenes/item_pickup.tscn")
 
