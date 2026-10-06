@@ -71,6 +71,57 @@ func _run() -> void:
 		spare.remove_at(pick)
 		if _allowed(spot[0], spot[1], spot[2]):
 			_spawn(spot[0], spot[1], spot[2])
+	_spawn_boss()
+
+
+## Puts the boss on the floor of its room, as far from the entrance as it
+## can stand without touching a wall.
+func _spawn_boss() -> void:
+	if _table.boss == null:
+		return
+	for piece: MapPiece in _dungeon.result.pieces:
+		if piece.name != _table.boss_piece:
+			continue
+		var best := Vector2i(-1, -1)
+		var best_distance := -1
+		for y in range(piece.pos.y, piece.pos.y + piece.size.y):
+			for x in range(piece.pos.x, piece.pos.x + piece.size.x):
+				var cell := Vector2i(x, y)
+				if not _boss_fits(cell):
+					continue
+				var distance := _distance_from_entrance(piece, cell)
+				if distance > best_distance:
+					best = cell
+					best_distance = distance
+		if best.x < 0:
+			push_warning("No room for the boss in %s" % piece.name)
+			return
+		var boss: Node2D = _table.boss.instantiate()
+		# Set before entering the tree: enemies record their patrol origin
+		# in _ready.
+		boss.position = (Vector2(best) + Vector2(0.5, 1.0)) * _dungeon.cell_size()
+		_parent.add_child(boss)
+		_spawned.append(boss)
+		return
+
+
+## Floor with headroom and open cells to either side.
+func _boss_fits(cell: Vector2i) -> bool:
+	if _tile(cell + Vector2i.DOWN) != MapPiece.SOLID:
+		return false
+	for dx in range(-1, 2):
+		for dy in 2:
+			if _tile(cell + Vector2i(dx, -dy)) != MapPiece.EMPTY:
+				return false
+	return true
+
+
+func _distance_from_entrance(piece: MapPiece, cell: Vector2i) -> int:
+	var nearest := 1 << 30
+	for door_cell in piece.entry_door.cells:
+		var gap: Vector2i = (piece.pos + door_cell - cell).abs()
+		nearest = mini(nearest, maxi(gap.x, gap.y))
+	return nearest
 
 
 ## Index of a random spare spot, favouring rules with a higher chance so the

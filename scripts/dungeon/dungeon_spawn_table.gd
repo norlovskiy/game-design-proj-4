@@ -12,3 +12,8 @@ extends Resource
 ## dead ends), so bigger dungeons get more. If the chance rolls come up
 ## short, extra enemies are added at spots that still fit every limit.
 @export_range(0.0, 30.0, 0.5) var min_per_10_corridors := 6.0
+## Spawned once, on the floor at the far end of `boss_piece`, apart from
+## the rules above. Empty means no boss.
+@export var boss: PackedScene
+## Name of the room the boss lives in.
+@export var boss_piece := "boss"

@@ -1,37 +1,12 @@
-[gd_resource type="Resource" script_class="DungeonSpawnTable" load_steps=11 format=3]
+[gd_resource type="Resource" script_class="DungeonSpawnTable" format=3 uid="uid://d0wj5e8aooc8t"]
 
-[ext_resource type="Script" path="res://scripts/dungeon/dungeon_spawn_table.gd" id="1_table"]
-[ext_resource type="Script" path="res://scripts/dungeon/dungeon_spawn_rule.gd" id="2_rule"]
+[ext_resource type="Script" uid="uid://emhq76idv85" path="res://scripts/dungeon/dungeon_spawn_table.gd" id="1_table"]
+[ext_resource type="Script" uid="uid://cq6kidmtvo27" path="res://scripts/dungeon/dungeon_spawn_rule.gd" id="2_rule"]
 [ext_resource type="PackedScene" path="res://scenes/nightborne.tscn" id="3_nightborne"]
 [ext_resource type="PackedScene" path="res://scenes/eyeball_monster.tscn" id="4_eyeball"]
 [ext_resource type="PackedScene" path="res://scenes/flying_demon.tscn" id="5_demon"]
-[ext_resource type="PackedScene" path="res://scenes/bringer_of_death.tscn" id="6_bringer"]
-
-[sub_resource type="Resource" id="Resource_nightborne"]
-script = ExtResource("2_rule")
-enemy = ExtResource("3_nightborne")
-chance = 0.2
-max_per_piece = 2
-pieces = PackedStringArray("hall", "dead_end")
-min_depth = 2
-
-[sub_resource type="Resource" id="Resource_eyeball"]
-script = ExtResource("2_rule")
-enemy = ExtResource("4_eyeball")
-chance = 0.2
-max_per_piece = 1
-door_clearance = 2
-min_depth = 3
-
-[sub_resource type="Resource" id="Resource_demon"]
-script = ExtResource("2_rule")
-enemy = ExtResource("5_demon")
-placement = 1
-chance = 0.12
-max_per_piece = 1
-pieces = PackedStringArray("shaft")
-door_clearance = 1
-min_depth = 3
+[ext_resource type="PackedScene" uid="uid://bremrr0kny7i" path="res://scenes/bringer_of_death.tscn" id="6_bringer"]
+[ext_resource type="PackedScene" path="res://scenes/leaf_ranger.tscn" id="7_leaf_ranger"]
 
 [sub_resource type="Resource" id="Resource_bringer"]
 script = ExtResource("2_rule")
@@ -40,6 +15,29 @@ chance = 0.12
 max_per_piece = 1
 min_depth = 3
 
+[sub_resource type="Resource" id="Resource_nightborne"]
+script = ExtResource("2_rule")
+enemy = ExtResource("3_nightborne")
+chance = 0.15
+min_depth = 2
+
+[sub_resource type="Resource" id="Resource_eyeball"]
+script = ExtResource("2_rule")
+enemy = ExtResource("4_eyeball")
+chance = 0.2
+max_per_piece = 1
+min_depth = 3
+
+[sub_resource type="Resource" id="Resource_demon"]
+script = ExtResource("2_rule")
+enemy = ExtResource("5_demon")
+placement = 1
+chance = 0.12
+max_per_piece = 1
+door_clearance = 1
+min_depth = 3
+
 [resource]
 script = ExtResource("1_table")
 rules = Array[ExtResource("2_rule")]([SubResource("Resource_bringer"), SubResource("Resource_nightborne"), SubResource("Resource_eyeball"), SubResource("Resource_demon")])
+boss = ExtResource("7_leaf_ranger")

@@ -22,6 +22,10 @@ func _init() -> void:
 		if rule.placement == DungeonSpawnRule.Placement.FLOOR:
 			floor_scenes[rule.enemy.resource_path] = true
 
+	if table.boss != null:
+		allowed[[table.boss.resource_path, table.boss_piece]] = true
+		floor_scenes[table.boss.resource_path] = true
+
 	var dungeon := Dungeon.new()
 	dungeon.theme = load("res://data/themes/castle_theme.tres")
 	dungeon.spawn_table = table
@@ -64,6 +68,14 @@ func _init() -> void:
 				if absi(other.x - cell.x) <= table.min_spacing and absi(other.y - cell.y) <= table.min_spacing:
 					_fail("enemies at %s and %s are too close" % [other, cell])
 			cells.append(cell)
+
+		if table.boss != null:
+			var bosses := 0
+			for enemy: Node2D in dungeon.enemies.get_children():
+				if enemy.scene_file_path == table.boss.resource_path:
+					bosses += 1
+			if bosses != 1:
+				_fail("%d bosses spawned, expected 1" % bosses)
 
 		dungeon.generate(_seed)
 		if _snapshot(dungeon) != first:

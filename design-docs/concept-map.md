@@ -1,4 +1,4 @@
-
+	
 # Rooms
 
 start room: one side entrance

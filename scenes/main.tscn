@@ -1,64 +1,23 @@
-[gd_scene format=3 uid="uid://pa61iqk5v025"]
+[gd_scene format=3 uid="uid://dcp0o6ipms0fm"]
 
-[ext_resource type="PackedScene" uid="uid://clt6j28p275kk" path="res://scenes/player.tscn" id="1_o5qli"]
-[ext_resource type="PackedScene" path="res://scenes/player_hud.tscn" id="3_hud"]
-[ext_resource type="PackedScene" path="res://scenes/leaf_ranger.tscn" id="6_leaf_ranger"]
-[ext_resource type="PackedScene" path="res://scenes/item_pickup.tscn" id="4_pickup"]
+[ext_resource type="Script" uid="uid://b6dvtopn6spta" path="res://scripts/dungeon/dungeon_demo.gd" id="1"]
+[ext_resource type="Script" uid="uid://bx0nk63floxrh" path="res://scripts/dungeon/dungeon.gd" id="2"]
+[ext_resource type="Resource" uid="uid://g8gsl1bih7as" path="res://data/themes/castle_theme.tres" id="3"]
+[ext_resource type="PackedScene" uid="uid://clt6j28p275kk" path="res://scenes/player.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/player_hud.tscn" id="hud_scene"]
+[ext_resource type="Resource" uid="uid://d0wj5e8aooc8t" path="res://data/spawns/castle_spawns.tres" id="spawns"]
+[ext_resource type="Resource" path="res://data/items/castle_items.tres" id="items"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
-size = Vector2(1152, 40)
+[node name="DungeonDemo" type="Node2D" unique_id=1403208910]
+texture_filter = 1
+script = ExtResource("1")
 
-[node name="Node2D" type="Node2D" unique_id=1277697378]
+[node name="Dungeon" type="Node2D" parent="." unique_id=1293691411]
+script = ExtResource("2")
+theme = ExtResource("3")
+spawn_table = ExtResource("spawns")
+item_table = ExtResource("items")
 
-[node name="Player" parent="." unique_id=920989453 instance=ExtResource("1_o5qli")]
-position = Vector2(311, 190)
+[node name="Player" parent="." unique_id=1425862702 instance=ExtResource("4")]
 
-[node name="SwordPickup" parent="." instance=ExtResource("4_pickup")]
-position = Vector2(370, 182)
-
-[node name="ArcaneStaffPickup" parent="." instance=ExtResource("4_pickup")]
-position = Vector2(440, 182)
-kind = 1
-
-[node name="PiercingStaffPickup" parent="." instance=ExtResource("4_pickup")]
-position = Vector2(510, 182)
-kind = 1
-variant = 1
-
-[node name="FrostStaffPickup" parent="." instance=ExtResource("4_pickup")]
-position = Vector2(580, 182)
-kind = 1
-variant = 2
-
-[node name="HealthRingPickup" parent="." instance=ExtResource("4_pickup")]
-position = Vector2(650, 182)
-kind = 2
-
-[node name="StaminaRingPickup" parent="." instance=ExtResource("4_pickup")]
-position = Vector2(720, 182)
-kind = 2
-variant = 1
-
-[node name="ManaRingPickup" parent="." instance=ExtResource("4_pickup")]
-position = Vector2(790, 182)
-kind = 2
-variant = 2
-
-[node name="RedPotionPickup" parent="." instance=ExtResource("4_pickup")]
-position = Vector2(860, 182)
-kind = 3
-
-[node name="Ground" type="StaticBody2D" parent="." unique_id=1573482798]
-position = Vector2(576, 220)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground" unique_id=2099341744]
-shape = SubResource("RectangleShape2D_ground")
-
-[node name="Polygon2D" type="Polygon2D" parent="Ground" unique_id=101879550]
-color = Color(0.22, 0.24, 0.29, 1)
-polygon = PackedVector2Array(-576, -20, 576, -20, 576, 20, -576, 20)
-
-[node name="LeafRanger" parent="." unique_id=1904930887 instance=ExtResource("6_leaf_ranger")]
-position = Vector2(635, 195)
-
-[node name="PlayerHUD" parent="." unique_id=309918628 instance=ExtResource("3_hud")]
+[node name="PlayerHUD" parent="." unique_id=694736781 instance=ExtResource("hud_scene")]
