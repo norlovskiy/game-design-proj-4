@@ -45,12 +45,14 @@ func _run() -> void:
 	await _wait_frames(4)
 	_check(boss.is_on_floor(), "boss did not settle onto the arena floor")
 
-	# Every set of five attacks must contain each move once, even across refills.
+	# Every set of five starts with a dodgeable move and contains each attack once.
 	var last := -1
-	for cycle in 3:
+	for cycle in 50:
 		var seen := {}
 		for move in 5:
 			var choice: int = boss.call("_draw_next_attack")
+			if move == 0:
+				_check(choice != LeafRanger.Attack.BEAM, "beam opened a five-attack set")
 			_check(not seen.has(choice), "an attack repeated within a five-move cycle")
 			if last >= 0:
 				_check(choice != last, "the same attack repeated at a cycle boundary")
@@ -101,6 +103,15 @@ func _run() -> void:
 	await _wait_frames(65)
 
 	var melee_shape := boss.get_node("MeleeArea/CollisionShape2D") as CollisionShape2D
+	var melee_sprite := boss.get_node("AnimatedSprite2D") as AnimatedSprite2D
+	boss.call("_start_attack", LeafRanger.Attack.MELEE)
+	melee_sprite.pause()
+	for frame in [4, 5, 6, 7, 8, 9]:
+		melee_sprite.frame = frame
+		await _wait_frames(2)
+		_check(melee_shape.disabled == (frame < 6),
+			"melee hitbox timing was wrong at animation frame %d" % frame)
+	boss.call("_finish_attack")
 	body.global_position.x = 255.0
 	var melee_hp := int(body.get("hp"))
 	boss.call("_start_attack", 1)
@@ -110,6 +121,36 @@ func _run() -> void:
 		melee_was_active = melee_was_active or not melee_shape.disabled
 	_check(melee_was_active, "melee thrust never enabled its hitbox")
 	_check(int(body.get("hp")) < melee_hp, "melee thrust did not harm a nearby player")
+	body.global_position.x = 300.0
+
+	# A player who crosses behind the bow during windup must not pull the shot backward.
+	for facing in [1.0, -1.0]:
+		boss.call("_face", facing)
+		body.global_position.x = boss.global_position.x - facing * 120.0
+		boss.call("_start_attack", LeafRanger.Attack.POISON)
+		melee_sprite.pause()
+		melee_sprite.frame = 8
+		var behind_shot := arena.get_node_or_null("LeafRangerArrow") as LeafRangerArrow
+		_check(behind_shot != null, "ground shot did not spawn when player was behind")
+		if behind_shot != null:
+			_check(behind_shot.direction.is_equal_approx(Vector2(facing, 0.0)),
+				"ground shot aimed backward instead of straight ahead")
+			behind_shot.queue_free()
+		boss.call("_finish_attack")
+		await _wait_frames(1)
+	boss.call("_face", 1.0)
+	body.global_position.x = boss.global_position.x + 120.0
+	boss.call("_start_attack", LeafRanger.Attack.POISON)
+	melee_sprite.pause()
+	melee_sprite.frame = 8
+	var front_shot := arena.get_node_or_null("LeafRangerArrow") as LeafRangerArrow
+	_check(front_shot != null, "ground shot did not spawn when player was ahead")
+	if front_shot != null:
+		_check(front_shot.direction.x > 0.0 and front_shot.direction.y > 0.0,
+			"ground shot stopped aiming at a player ahead")
+		front_shot.queue_free()
+	boss.call("_finish_attack")
+	await _wait_frames(1)
 	body.global_position.x = 300.0
 
 	var arrows_before: int = _spawn_counts.LeafRangerArrow
@@ -165,6 +206,15 @@ func _run() -> void:
 	body.global_position = Vector2(260, 0)
 	await _wait_frames(3)
 	_check(boss.velocity.x < 0.0, "boss did not run away when there was room")
+	_check((boss.get_node("AnimatedSprite2D") as AnimatedSprite2D).flip_h,
+		"boss faced the player while retreating left")
+	boss.global_position = Vector2(220, 0)
+	body.global_position = Vector2(180, 0)
+	boss.velocity = Vector2.ZERO
+	await _wait_frames(3)
+	_check(boss.velocity.x > 0.0, "boss did not run away to the right")
+	_check(not (boss.get_node("AnimatedSprite2D") as AnimatedSprite2D).flip_h,
+		"boss faced the player while retreating right")
 	boss.global_position = Vector2(-270, 0)
 	body.global_position = Vector2(-235, 0)
 	boss.velocity = Vector2.ZERO

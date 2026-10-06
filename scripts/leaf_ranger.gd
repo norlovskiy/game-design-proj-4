@@ -208,6 +208,7 @@ func _can_run(direction: float, distance: float) -> bool:
 
 
 func _run(direction: float, speed: float, delta: float) -> void:
+	_face(direction)
 	velocity.x = move_toward(velocity.x, direction * speed, acceleration * delta)
 	_play(&"run")
 
@@ -230,10 +231,13 @@ func _refill_bag() -> void:
 		return
 	_attack_bag = [Attack.AIR, Attack.MELEE, Attack.POISON, Attack.RAIN, Attack.BEAM]
 	_attack_bag.shuffle()
-	if _attack_bag[0] == _last_attack:
-		var first := _attack_bag[0]
-		_attack_bag[0] = _attack_bag[1]
-		_attack_bag[1] = first
+	if _attack_bag[0] == Attack.BEAM or _attack_bag[0] == _last_attack:
+		for index in range(1, _attack_bag.size()):
+			if _attack_bag[index] != Attack.BEAM and _attack_bag[index] != _last_attack:
+				var first := _attack_bag[0]
+				_attack_bag[0] = _attack_bag[index]
+				_attack_bag[index] = first
+				break
 
 
 func _draw_next_attack() -> int:
@@ -314,7 +318,7 @@ func _set_melee_active(active: bool) -> void:
 
 func _on_frame_changed() -> void:
 	_set_melee_active(_state == State.ATTACK and _current_attack == Attack.MELEE
-		and _sprite.frame >= 4 and _sprite.frame <= 7)
+		and _sprite.frame >= 6 and _sprite.frame <= 9)
 	if _state != State.ATTACK or _attack_event_fired:
 		return
 	match _current_attack:
@@ -367,7 +371,9 @@ func _spawn_arrow(kind: int) -> void:
 	var origin := global_position + Vector2(_facing * 30.0, -32.0)
 	var aim := Vector2(_facing, 0.0)
 	if is_instance_valid(_target):
-		aim = (_target.global_position + Vector2(0, -13) - origin).normalized()
+		var to_target := _target.global_position + Vector2(0, -13) - origin
+		if kind != POISON_EFFECT or to_target.x * _facing > 0.0:
+			aim = to_target.normalized()
 	var arrow := ARROW_SCENE.instantiate() as Node2D
 	arrow.call("configure", kind, aim, arrow_speed)
 	_spawn_in_world(arrow, origin)
