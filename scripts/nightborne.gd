@@ -1,5 +1,5 @@
 class_name NightBorne
-extends Enemy
+extends "res://scripts/melee_enemy.gd"
 
 enum State {
 	IDLE,
@@ -73,7 +73,7 @@ func take_damage(amount: int) -> void:
 	super.take_damage(amount)
 	if health == 0:
 		_set_state(State.DEAD)
-	else:
+	elif _state != State.HURT and _should_play_hurt():
 		_set_state(State.HURT)
 
 
@@ -129,6 +129,7 @@ func _set_state(next_state: State) -> void:
 		return
 
 	_state = next_state
+	_sprite.speed_scale = 1.0
 	_set_attack_active(false)
 
 	match _state:
@@ -139,6 +140,7 @@ func _set_state(next_state: State) -> void:
 		State.ATTACK:
 			_sprite.play(&"attack")
 		State.HURT:
+			_sprite.speed_scale = _hurt_animation_speed()
 			_sprite.play(&"hurt")
 		State.DEAD:
 			collision_layer = 0
@@ -160,6 +162,7 @@ func _on_animation_finished() -> void:
 			_cooldown_remaining = attack_cooldown
 			_set_state(State.IDLE)
 		State.HURT:
+			_on_hurt_finished()
 			_set_state(State.IDLE)
 		State.DEAD:
 			queue_free()

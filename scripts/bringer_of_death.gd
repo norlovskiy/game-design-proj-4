@@ -1,5 +1,5 @@
 class_name BringerOfDeath
-extends Enemy
+extends "res://scripts/melee_enemy.gd"
 
 enum State {
 	IDLE,
@@ -11,7 +11,7 @@ enum State {
 }
 
 const SPRITE_SHEET: Texture2D = preload(
-	"res://assets/Bringer-Of-Death/SpriteSheet/Bringer-of-Death-SpritSheet.png"
+	"res://assets/bringer-of-death/SpriteSheet/Bringer-of-Death-SpritSheet.png"
 )
 const SPELL_SCENE: PackedScene = preload("res://scenes/bringer_spell.tscn")
 const FRAME_SIZE := Vector2(140.0, 93.0)
@@ -106,7 +106,7 @@ func take_damage(amount: int) -> void:
 	super.take_damage(amount)
 	if health == 0:
 		_set_state(State.DEAD)
-	else:
+	elif _state != State.HURT and _should_play_hurt():
 		_set_state(State.HURT)
 
 
@@ -171,6 +171,7 @@ func _set_state(next_state: State) -> void:
 		return
 
 	_state = next_state
+	_sprite.speed_scale = 1.0
 	_set_attack_active(false)
 
 	match _state:
@@ -184,6 +185,7 @@ func _set_state(next_state: State) -> void:
 			_spell_spawned = false
 			_sprite.play(&"cast")
 		State.HURT:
+			_sprite.speed_scale = _hurt_animation_speed()
 			_sprite.play(&"hurt")
 		State.DEAD:
 			collision_layer = 0
@@ -221,6 +223,7 @@ func _on_animation_finished() -> void:
 			_spell_cooldown_remaining = spell_cooldown
 			_set_state(State.IDLE)
 		State.HURT:
+			_on_hurt_finished()
 			_set_state(State.IDLE)
 		State.DEAD:
 			queue_free()

@@ -1,7 +1,7 @@
 extends Node2D
 
 const SPRITE_SHEET: Texture2D = preload(
-	"res://assets/Bringer-Of-Death/SpriteSheet/Bringer-of-Death-SpritSheet.png"
+	"res://assets/bringer-of-death/SpriteSheet/Bringer-of-Death-SpritSheet.png"
 )
 const FRAME_SIZE := Vector2(140.0, 93.0)
 const ACTIVE_FRAMES := [5, 6, 7, 8, 9, 10, 11, 12]

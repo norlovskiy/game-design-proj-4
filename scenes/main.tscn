@@ -1,7 +1,10 @@
 [gd_scene format=3 uid="uid://pa61iqk5v025"]
 
 [ext_resource type="PackedScene" uid="uid://clt6j28p275kk" path="res://scenes/player.tscn" id="1_o5qli"]
-[ext_resource type="PackedScene" path="res://scenes/nightborne.tscn" id="2_nightborne"]
+[ext_resource type="PackedScene" uid="uid://nl5fnuse8ago" path="res://scenes/nightborne.tscn" id="2_nightborne"]
+[ext_resource type="PackedScene" path="res://scenes/flying_demon.tscn" id="3_flying_demon"]
+[ext_resource type="PackedScene" path="res://scenes/bringer_of_death.tscn" id="4_jyhfs"]
+[ext_resource type="PackedScene" path="res://scenes/eyeball_monster.tscn" id="5_eyeball"]
 [ext_resource type="PackedScene" path="res://scenes/player_hud.tscn" id="3_hud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
@@ -12,17 +15,70 @@ size = Vector2(1152, 40)
 [node name="Player" parent="." unique_id=920989453 instance=ExtResource("1_o5qli")]
 position = Vector2(311, 190)
 
-[node name="NightBorne" parent="." instance=ExtResource("2_nightborne")]
-position = Vector2(510, 200)
+[node name="NightBorne" parent="." unique_id=1991635246 instance=ExtResource("2_nightborne")]
+position = Vector2(7, 195)
 
-[node name="Ground" type="StaticBody2D" parent="."]
+[node name="FlyingDemon" parent="." unique_id=1614877267 instance=ExtResource("3_flying_demon")]
+position = Vector2(800, 105)
+patrol_radius = 90.0
+patrol_speed = 55.0
+patrol_bob_height = 12.0
+max_flight_height = 80.0
+aggro_range = 340.0
+disengage_range = 440.0
+move_speed = 115.0
+acceleration = 450.0
+preferred_distance = 175.0
+preferred_height = 75.0
+position_tolerance = 22.0
+attack_cooldown = 1.6
+projectile_speed = 230.0
+
+[node name="Ground" type="StaticBody2D" parent="." unique_id=1573482798]
 position = Vector2(576, 220)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground" unique_id=2099341744]
 shape = SubResource("RectangleShape2D_ground")
 
-[node name="Polygon2D" type="Polygon2D" parent="Ground"]
+[node name="Polygon2D" type="Polygon2D" parent="Ground" unique_id=101879550]
 color = Color(0.22, 0.24, 0.29, 1)
 polygon = PackedVector2Array(-576, -20, 576, -20, 576, 20, -576, 20)
+
+[node name="BringerOfDeath" parent="." unique_id=732615389 instance=ExtResource("4_jyhfs")]
+position = Vector2(25, 193)
+
+[node name="EyeballMonster" parent="." unique_id=842148036 instance=ExtResource("5_eyeball")]
+position = Vector2(623, 190)
+patrol_radius = 90.0
+patrol_speed = 90.0
+chase_speed = 150.0
+acceleration = 650.0
+detection_range = 280.0
+vertical_detection_range = 65.0
+charge_range = 180.0
+windup_duration = 0.4
+roll_speed = 340.0
+roll_duration = 0.65
+missed_stagger_duration = 0.75
+attack_cooldown = 0.9
+resisted_hits_after_hurt = 2
+repeat_hurt_speed = 2.0
+
+[node name="EyeballMonster2" parent="." unique_id=1621683614 instance=ExtResource("5_eyeball")]
+position = Vector2(455, 186)
+patrol_radius = 90.0
+patrol_speed = 90.0
+chase_speed = 150.0
+acceleration = 650.0
+detection_range = 280.0
+vertical_detection_range = 65.0
+charge_range = 180.0
+windup_duration = 0.4
+roll_speed = 340.0
+roll_duration = 0.65
+missed_stagger_duration = 0.75
+attack_cooldown = 0.9
+resisted_hits_after_hurt = 2
+repeat_hurt_speed = 2.0
 
 [node name="PlayerHUD" parent="." instance=ExtResource("3_hud")]

@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/eyeball_monster.gd" id="2_eyeball"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 9.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
+size = Vector2(106, 24)
+
+[node name="EyeballMonster" instance=ExtResource("1_enemy")]
+floor_snap_length = 4.0
+script = ExtResource("2_eyeball")
+max_health = 1
+
+[node name="Hitbox" parent="." index="0"]
+position = Vector2(0, -12)
+shape = SubResource("CircleShape2D_body")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." index="1"]
+texture_filter = 1
+position = Vector2(0, -12)
+
+[node name="AttackArea" type="Area2D" parent="." index="2"]
+position = Vector2(53, -12)
+collision_layer = 0
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("RectangleShape2D_attack")
+disabled = true
