@@ -11,6 +11,9 @@ signal died
 const MOVE_SPEED := 200.0
 const ROLL_SPEED := 280.0
 const JUMP_VELOCITY := -460.0
+## Seconds after walking off a ledge during which a jump still counts as a
+## ground jump.
+const COYOTE_TIME := 0.1
 const HIT_RECOVERY_DURATION := 0.25
 const HIT_FLASH_DURATION := 0.15
 const HIT_INVINCIBILITY_DURATION := 1.0
@@ -60,6 +63,7 @@ var arena_rect := Rect2()
 var health_regen_elapsed := 0.0
 var roll_direction := 1
 var jump_was_pressed := false
+var coyote_remaining := 0.0
 var roll_was_pressed := false
 var attack_key_was_pressed := false
 var attack_mouse_was_pressed := false
@@ -148,6 +152,9 @@ func _physics_process(delta: float) -> void:
 	_apply_gravity(delta)
 	if is_on_floor():
 		air_jump_used = false
+		coyote_remaining = COYOTE_TIME
+	else:
+		coyote_remaining = maxf(0.0, coyote_remaining - delta)
 
 	if not is_rolling and not is_hurt and roll_just_pressed and is_on_floor() \
 		and spend_stamina(get_roll_stamina_cost()):
@@ -164,7 +171,8 @@ func _physics_process(delta: float) -> void:
 	if not is_rolling and not is_hurt and not is_attacking and staff_cast_remaining == 0.0:
 		if horizontal_input != 0:
 			animated_sprite.flip_h = horizontal_input < 0
-		if jump_just_pressed and is_on_floor():
+		if jump_just_pressed and (is_on_floor() or coyote_remaining > 0.0):
+			coyote_remaining = 0.0
 			velocity.y = JUMP_VELOCITY
 			_play_animation("jump")
 		elif jump_just_pressed and has_double_jump and not air_jump_used:

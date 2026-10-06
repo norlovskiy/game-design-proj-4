@@ -10,43 +10,43 @@ script = ExtResource("3_entry")
 
 [sub_resource type="Resource" id="Entry_staff_0"]
 script = ExtResource("3_entry")
-price = 40
 kind = 1
+price = 40
 
 [sub_resource type="Resource" id="Entry_staff_1"]
 script = ExtResource("3_entry")
-price = 40
 kind = 1
 variant = 1
+price = 40
 
 [sub_resource type="Resource" id="Entry_staff_2"]
 script = ExtResource("3_entry")
-price = 40
 kind = 1
 variant = 2
+price = 40
 
 [sub_resource type="Resource" id="Entry_ring_0"]
 script = ExtResource("3_entry")
-price = 35
 kind = 2
+price = 35
 
 [sub_resource type="Resource" id="Entry_ring_1"]
 script = ExtResource("3_entry")
-price = 35
 kind = 2
 variant = 1
+price = 35
 
 [sub_resource type="Resource" id="Entry_ring_2"]
 script = ExtResource("3_entry")
-price = 35
 kind = 2
 variant = 2
+price = 35
 
 [sub_resource type="Resource" id="Entry_red_potion"]
 script = ExtResource("3_entry")
-price = 15
 kind = 3
 weight = 2.0
+price = 15
 
 [sub_resource type="Resource" id="Pool_item_rooms"]
 script = ExtResource("2_pool")
@@ -58,13 +58,11 @@ kind = 4
 
 [sub_resource type="Resource" id="Pool_key_room"]
 script = ExtResource("2_pool")
-rooms = PackedStringArray("item_key")
 entries = Array[ExtResource("3_entry")]([SubResource("Entry_key")])
 allow_repeats = true
 
 [sub_resource type="Resource" id="Pool_shop"]
 script = ExtResource("2_pool")
-rooms = PackedStringArray("shop")
 entries = Array[ExtResource("3_entry")]([SubResource("Entry_sword"), SubResource("Entry_staff_0"), SubResource("Entry_staff_1"), SubResource("Entry_staff_2"), SubResource("Entry_ring_0"), SubResource("Entry_ring_1"), SubResource("Entry_ring_2"), SubResource("Entry_red_potion")])
 items_per_room = 3
 offset = Vector2(0, -34)

@@ -49,7 +49,7 @@ func _on_equipment_changed(slot: int, icon: Texture2D) -> void:
 
 
 func _on_potions_changed(count: int) -> void:
-	potion_count_label.text = "×%d" % count
+	potion_count_label.text = "%d" % count
 
 
 func _on_gold_changed(amount: int) -> void:

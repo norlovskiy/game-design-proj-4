@@ -13,7 +13,7 @@ collision_layer = 4
 collision_mask = 1
 floor_snap_length = 4.0
 script = ExtResource("2_nightborne")
-coin_drop = Vector2i(2, 4)
+coin_drop = Vector2i(3, 6)
 potion_drop_chance = 0.08
 max_health = 5
 

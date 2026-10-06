@@ -8,6 +8,7 @@ const DOOR_COLOR := Color(1.0, 1.0, 1.0)
 const PLATFORM_COLOR := Color(0.75, 0.78, 0.85)
 const PIECE_COLOR := Color(0.55, 0.55, 0.58)
 const START_COLOR := Color(0.3, 0.8, 0.35)
+const SHOP_COLOR := Color(0.9, 0.25, 0.25)
 const MARKER_COLOR := Color(1.0, 0.82, 0.2)
 const MARGIN := 48.0
 
@@ -61,7 +62,12 @@ func _rebuild_texture() -> void:
 			var owner := map.get_owner(x, y)
 			if owner < 0 or not _dungeon.explored.has(owner):
 				continue
-			var base := START_COLOR if map.pieces[owner].name == "start" else PIECE_COLOR
+			var base := PIECE_COLOR
+			match map.pieces[owner].name:
+				"start":
+					base = START_COLOR
+				"shop":
+					base = SHOP_COLOR
 			var color := base
 			match map.get_tile(x, y):
 				MapPiece.SOLID:
