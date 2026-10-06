@@ -59,4 +59,4 @@ color = Color(0.22, 0.24, 0.29, 1)
 polygon = PackedVector2Array(-576, -20, 576, -20, 576, 20, -576, 20)
 
 [node name="BringerOfDeath" parent="." unique_id=732615389 instance=ExtResource("4_jyhfs")]
-position = Vector2(322, 114)
+position = Vector2(154, 198)
