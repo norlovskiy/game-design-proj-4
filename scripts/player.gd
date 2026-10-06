@@ -3,6 +3,7 @@ extends CharacterBody2D
 signal lives_changed(lives_remaining: int)
 signal resources_changed(hp: int, stamina: float, mana: float)
 signal equipment_changed(slot: int, icon: Texture2D)
+signal potions_changed(count: int)
 signal died
 
 const MOVE_SPEED := 200.0
@@ -18,8 +19,9 @@ const STAFF_PROJECTILE_SCENE: PackedScene = preload("res://scenes/staff_projecti
 const STAFF_MANA_COST := 20.0
 const STAFF_CAST_LOCK_DURATION := 0.4
 const HEALTH_RING_INTERVAL := 20.0
+const POTION_HEAL_AMOUNT := 1
 
-@export_range(1, 10) var max_hp := 3
+@export_range(1, 10) var max_hp := 6
 @export_range(1.0, 200.0, 1.0) var max_stamina := 100.0
 @export_range(0.0, 100.0, 1.0) var roll_stamina_cost := 25.0
 @export var stamina_regen_rate := 20.0
@@ -45,6 +47,7 @@ var attack_damage_bonus := 0
 var has_sword := false
 var staff_variant := -1
 var ring_variant := -1
+var potion_count := 0
 var health_regen_elapsed := 0.0
 var roll_direction := 1
 var jump_was_pressed := false
@@ -52,6 +55,7 @@ var roll_was_pressed := false
 var attack_key_was_pressed := false
 var attack_mouse_was_pressed := false
 var pickup_was_pressed := false
+var heal_was_pressed := false
 var cast_key_was_pressed := false
 var cast_mouse_was_pressed := false
 var queued_second_attack := false
@@ -96,6 +100,7 @@ func _physics_process(delta: float) -> void:
 	var attack_key_pressed := Input.is_physical_key_pressed(KEY_J)
 	var attack_mouse_pressed := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 	var pickup_pressed := Input.is_physical_key_pressed(KEY_F)
+	var heal_pressed := Input.is_physical_key_pressed(KEY_H)
 	var cast_key_pressed := Input.is_physical_key_pressed(KEY_K)
 	var cast_mouse_pressed := Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
 	var jump_just_pressed := jump_pressed and not jump_was_pressed
@@ -103,6 +108,7 @@ func _physics_process(delta: float) -> void:
 	var attack_just_pressed := (attack_key_pressed and not attack_key_was_pressed) or \
 		(attack_mouse_pressed and not attack_mouse_was_pressed)
 	var pickup_just_pressed := pickup_pressed and not pickup_was_pressed
+	var heal_just_pressed := heal_pressed and not heal_was_pressed
 	var cast_just_pressed := (cast_key_pressed and not cast_key_was_pressed) or \
 		(cast_mouse_pressed and not cast_mouse_was_pressed)
 	jump_was_pressed = jump_pressed
@@ -110,10 +116,13 @@ func _physics_process(delta: float) -> void:
 	attack_key_was_pressed = attack_key_pressed
 	attack_mouse_was_pressed = attack_mouse_pressed
 	pickup_was_pressed = pickup_pressed
+	heal_was_pressed = heal_pressed
 	cast_key_was_pressed = cast_key_pressed
 	cast_mouse_was_pressed = cast_mouse_pressed
 	if pickup_just_pressed:
 		_try_pickup()
+	if heal_just_pressed:
+		_try_use_potion()
 
 	_apply_gravity(delta)
 
@@ -225,11 +234,19 @@ func receive_pickup(kind: int, variant: int) -> bool:
 			health_regen_elapsed = 0.0
 			equipment_changed.emit(2, ItemPickup.icon_for(kind, variant))
 		ItemPickup.Kind.RED_POTION:
-			if hp >= max_hp or hp <= 0:
-				return false
-			restore_hp(1)
+			potion_count += 1
+			potions_changed.emit(potion_count)
 		_:
 			return false
+	return true
+
+
+func _try_use_potion() -> bool:
+	if is_dead or hp <= 0 or hp >= max_hp or potion_count <= 0:
+		return false
+	potion_count -= 1
+	potions_changed.emit(potion_count)
+	restore_hp(POTION_HEAL_AMOUNT)
 	return true
 
 

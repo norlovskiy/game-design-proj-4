@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" path="res://assets/player/ui.png" id="1_ui"]
 [ext_resource type="Script" path="res://scripts/player_hud.gd" id="2_hud"]
+[ext_resource type="Texture2D" path="res://assets/player/items_noframe.png" id="3_items"]
 
 [sub_resource type="AtlasTexture" id="ResourceFrame"]
 atlas = ExtResource("1_ui")
@@ -23,6 +24,10 @@ region = Rect2(240, 64, 102, 8)
 atlas = ExtResource("1_ui")
 region = Rect2(16, 96, 180, 48)
 
+[sub_resource type="AtlasTexture" id="RedPotionIcon"]
+atlas = ExtResource("3_items")
+region = Rect2(44, 132, 44, 44)
+
 [node name="PlayerHUD" type="CanvasLayer"]
 layer = 10
 script = ExtResource("2_hud")
@@ -33,7 +38,7 @@ anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 16.0
 offset_top = -80.0
-offset_right = 408.0
+offset_right = 500.0
 offset_bottom = -16.0
 mouse_filter = 2
 
@@ -112,3 +117,39 @@ offset_bottom = 41.0
 mouse_filter = 2
 stretch_mode = 5
 texture_filter = 1
+
+[node name="PotionCounter" type="Control" parent="Layout"]
+offset_left = 400.0
+offset_top = 8.0
+offset_right = 490.0
+offset_bottom = 56.0
+mouse_filter = 2
+
+[node name="Icon" type="TextureRect" parent="Layout/PotionCounter"]
+offset_left = 2.0
+offset_top = 4.0
+offset_right = 42.0
+offset_bottom = 44.0
+mouse_filter = 2
+texture = SubResource("RedPotionIcon")
+stretch_mode = 5
+texture_filter = 1
+
+[node name="Count" type="Label" parent="Layout/PotionCounter"]
+offset_left = 42.0
+offset_top = 4.0
+offset_right = 88.0
+offset_bottom = 27.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+text = "×0"
+
+[node name="UseKey" type="Label" parent="Layout/PotionCounter"]
+modulate = Color(0.75, 0.78, 0.84, 0.8)
+offset_left = 44.0
+offset_top = 25.0
+offset_right = 84.0
+offset_bottom = 45.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+text = "H"
