@@ -405,7 +405,10 @@ func _start_roll(horizontal_input: int) -> void:
 		roll_direction = horizontal_input
 	else:
 		roll_direction = -1 if animated_sprite.flip_h else 1
-	_play_animation("roll")
+	# A new roll can start before the finished animation is replaced next frame.
+	# Always restart it so animation_finished can end this roll as well.
+	animated_sprite.play(&"roll")
+	animated_sprite.set_frame_and_progress(0, 0.0)
 
 
 func _end_roll() -> void:
