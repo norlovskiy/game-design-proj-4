@@ -38,6 +38,9 @@ func _init() -> void:
 		var first := _snapshot(dungeon)
 		total += first.size()
 		fewest = mini(fewest, first.size())
+		var minimum := DungeonSpawner.minimum_for(map, table)
+		if first.size() < minimum:
+			_fail("%d enemies, minimum for this map is %d" % [first.size(), minimum])
 		var per_piece := {}
 		var cells: Array[Vector2i] = []
 		for enemy: Node2D in dungeon.enemies.get_children():
