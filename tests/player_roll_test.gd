@@ -44,5 +44,19 @@ func _run() -> void:
 		push_error("Player kept roll speed after the second roll ended")
 		quit(1)
 		return
-	print("Player consecutive rolls stop correctly")
+
+	# Cancel a right-facing attack with a left roll: movement and sprite agree.
+	player.call("_start_attack", 1, 1)
+	player.call("_cancel_attack")
+	player.call("_start_roll", -1)
+	if int(player.get("roll_direction")) != -1 or not sprite.flip_h:
+		push_error("Roll kept the attack's facing instead of the direction key")
+		quit(1)
+		return
+	await physics_frame
+	if player.velocity.x >= 0.0:
+		push_error("Attack-cancel roll moved opposite the direction key")
+		quit(1)
+		return
+	print("Player consecutive rolls stop and attack-cancel rolls face the input direction")
 	quit(0)

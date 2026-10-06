@@ -34,6 +34,11 @@ func _physics_process(delta: float) -> void:
 	var next_position := global_position + direction * speed * delta
 	var query := PhysicsRayQueryParameters2D.create(global_position, next_position, 9)
 	var hit := get_world_2d().direct_space_state.intersect_ray(query)
+	var excluded: Array[RID] = []
+	while not hit.is_empty() and _is_rolling_player(hit.collider):
+		excluded.append(hit.rid)
+		query.exclude = excluded
+		hit = get_world_2d().direct_space_state.intersect_ray(query)
 	if not hit.is_empty():
 		global_position = hit.position
 		_hit_body(hit.collider)
@@ -46,10 +51,17 @@ func _physics_process(delta: float) -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if _exploded:
+	if _exploded or _is_rolling_player(body):
 		return
 	_hit_body(body)
 	_explode()
+
+
+func _is_rolling_player(body: Object) -> bool:
+	if not body is Node2D:
+		return false
+	var node := body as Node2D
+	return node.is_in_group(&"player") and node.get("is_rolling") == true
 
 
 func _hit_body(body: Object) -> void:
