@@ -12,12 +12,9 @@ const MapPiece := preload("res://scripts/mapgen/map_piece.gd")
 
 const S := DungeonTileRule.Situation
 
-## Emitted when a piece is revealed.
-signal explored_changed
 ## Emitted when the player claims the treasure.
 signal treasure_claimed
 
-const FOG_SHADER := preload("res://shaders/dungeon_fog.gdshader")
 const GATE_SCENE: PackedScene = preload("res://scenes/dungeon_gate.tscn")
 const TREASURE_SCENE: PackedScene = preload("res://scenes/treasure.tscn")
 ## How far above the floor the treasure floats, in pixels.
@@ -53,17 +50,9 @@ var treasure: Treasure
 var boss: Node2D
 ## The gate at the boss room's entrance, if there is a boss.
 var boss_gate: DungeonGate
-## Indices of the pieces the player has entered.
+## Piece indices the player has visited, used by the Tab map.
 var explored := {}
-
-## Seconds a piece takes to fade in once entered.
-var fade_time := 0.25
-
 var _tracked: Node2D
-## Pieces still fading in: index -> {cells, t}.
-var _fades := {}
-var _fog_image: Image
-var _fog_texture: ImageTexture
 
 var _generator := MapGenerator.new()
 ## Cells already covered by a decoration.
@@ -121,26 +110,24 @@ func build(map: MapGenerator.Result) -> void:
 		DungeonItemSpawner.populate(self, item_table, items)
 	_place_treasure()
 	_build_gates()
-	_build_fog()
 	explored.clear()
-	_fades.clear()
 	for piece: MapPiece in result.pieces:
 		if piece.name == "start":
-			explore(piece.index, true)
+			explored[piece.index] = true
 
 
-## Reveals pieces as `body` walks into them, and keeps it safe in safe rooms.
+## Tracks visited rooms, safe rooms, and the player's boss arena.
 func track(body: Node2D) -> void:
 	_tracked = body
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if result == null:
 		return
 	if _tracked != null:
 		var index := piece_at(to_local(_tracked.global_position))
-		if index >= 0 and not explored.has(index):
-			explore(index)
+		if index >= 0:
+			explored[index] = true
 		if "is_safe" in _tracked:
 			_tracked.is_safe = index >= 0 and result.pieces[index].name in safe_rooms
 		if "arena_rect" in _tracked:
@@ -150,7 +137,6 @@ func _process(delta: float) -> void:
 				arena = Rect2(to_global(Vector2(piece.pos) * cell_size()), Vector2(piece.size) * cell_size())
 			_tracked.arena_rect = arena
 	_update_boss_gate()
-	_advance_fades(delta)
 
 
 func _place_treasure() -> void:
@@ -211,77 +197,6 @@ func piece_at(local_pos: Vector2) -> int:
 	if cell.x < 0 or cell.y < 0 or cell.x >= result.size.x or cell.y >= result.size.y:
 		return -1
 	return result.get_owner(cell.x, cell.y)
-
-func explore(index: int, instant := false) -> void:
-	if explored.has(index):
-		return
-	explored[index] = true
-	var cells: Array[Vector2i] = []
-	for y in result.size.y:
-		for x in result.size.x:
-			if result.get_owner(x, y) == index:
-				cells.append(Vector2i(x, y))
-	_fades[index] = {"cells": cells, "t": 1.0 if instant else 0.0}
-	for cell in cells:
-		_light_door(cell)
-	_advance_fades(0.0)
-	explored_changed.emit()
-
-
-## Flags a door cell and the door cell facing it across the piece boundary.
-func _light_door(cell: Vector2i) -> void:
-	if result.get_tile(cell.x, cell.y) != MapPiece.DOOR:
-		return
-	for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
-		var other := cell + step
-		if other.x < 0 or other.y < 0 or other.x >= result.size.x or other.y >= result.size.y:
-			continue
-		if result.get_tile(other.x, other.y) != MapPiece.DOOR or result.get_owner(other.x, other.y) == result.get_owner(cell.x, cell.y):
-			continue
-		for flagged in [cell, other]:
-			var red := _fog_image.get_pixel(flagged.x, flagged.y).r
-			_fog_image.set_pixel(flagged.x, flagged.y, Color(red, 1.0, 0.0))
-
-
-func _advance_fades(delta: float) -> void:
-	if _fades.is_empty():
-		return
-	for index in _fades.keys():
-		var fade: Dictionary = _fades[index]
-		fade.t = minf(fade.t + delta / maxf(fade_time, 0.001), 1.0)
-		for cell: Vector2i in fade.cells:
-			var door := _fog_image.get_pixel(cell.x, cell.y).g
-			_fog_image.set_pixel(cell.x, cell.y, Color(fade.t, door, 0.0))
-		if fade.t >= 1.0:
-			_fades.erase(index)
-	_fog_texture.update(_fog_image)
-
-
-## A black sheet over the whole map that the shader cuts holes in for explored
-## cells. It draws above tiles and enemies but below the HUD.
-func _build_fog() -> void:
-	# Red is how revealed a cell is (rock counts as revealed). Green marks door
-	# cells that meet an explored piece; the shader lights a gradient out from
-	# them into the dark room beyond.
-	_fog_image = Image.create_empty(result.size.x, result.size.y, false, Image.FORMAT_RG8)
-	for y in result.size.y:
-		for x in result.size.x:
-			if result.get_owner(x, y) < 0:
-				_fog_image.set_pixel(x, y, Color(1.0, 0.0, 0.0))
-	_fog_texture = ImageTexture.create_from_image(_fog_image)
-	var material := ShaderMaterial.new()
-	material.shader = FOG_SHADER
-	material.set_shader_parameter("explored", _fog_texture)
-	material.set_shader_parameter("cell_px", cell_size().x)
-	material.set_shader_parameter("glow_px", float(theme.tile_set.tile_size.x))
-	var fog := ColorRect.new()
-	fog.name = "Fog"
-	fog.size = Vector2(result.size) * cell_size()
-	fog.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	fog.material = material
-	fog.z_index = 100
-	add_child(fog)
-
 
 ## Pixel size of one map cell.
 func cell_size() -> Vector2:

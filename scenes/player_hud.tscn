@@ -6,6 +6,15 @@
 [ext_resource type="Texture2D" path="res://assets/items/coin_large.png" id="4_coin"]
 [ext_resource type="FontFile" path="res://assets/fonts/VT323-Regular.ttf" id="5_font"]
 [ext_resource type="Texture2D" path="res://assets/items/key.png" id="6_key"]
+[ext_resource type="Texture2D" path="res://assets/player/portrait.png" id="7_portrait"]
+[ext_resource type="Shader" path="res://shaders/portrait_circle.gdshader" id="8_portrait_mask"]
+
+[sub_resource type="AtlasTexture" id="PortraitCrop"]
+atlas = ExtResource("7_portrait")
+region = Rect2(4, 0, 119, 119)
+
+[sub_resource type="ShaderMaterial" id="PortraitMask"]
+shader = ExtResource("8_portrait_mask")
 
 [sub_resource type="AtlasTexture" id="ResourceFrame"]
 atlas = ExtResource("1_ui")
@@ -50,6 +59,17 @@ offset_right = 200.0
 offset_bottom = 64.0
 mouse_filter = 2
 texture = SubResource("ResourceFrame")
+texture_filter = 1
+
+[node name="Portrait" type="TextureRect" parent="Layout"]
+material = SubResource("PortraitMask")
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 54.0
+offset_bottom = 54.0
+mouse_filter = 2
+texture = SubResource("PortraitCrop")
+expand_mode = 1
 texture_filter = 1
 
 [node name="HealthBar" type="TextureProgressBar" parent="Layout"]

@@ -60,49 +60,55 @@ func _init() -> void:
 		if dungeon.spawn_position() == Vector2.ZERO:
 			_fail("no spawn position")
 
-	_check_exploration(dungeon)
+	_check_visited_map(dungeon)
 
 	print("%d seeds, %d failures, %d prop tiles placed" % [SEEDS, _failures, decorated])
 	quit(1 if _failures > 0 else 0)
 
 
-func _check_exploration(dungeon: Dungeon) -> void:
+func _check_visited_map(dungeon: Dungeon) -> void:
 	dungeon.generate(1)
 	var map := dungeon.result
+	if dungeon.get_node_or_null("Fog") != null:
+		_fail("dungeon still has a fog overlay")
 	if dungeon.explored.size() != 1:
-		_fail("a fresh dungeon should have only the start piece explored")
-	var glowing := 0
+		_fail("a new dungeon should show only the start room on the map")
+	var overlay := DungeonMap.new()
+	overlay.setup(dungeon, dungeon)
+	root.add_child(overlay)
+	overlay.call("_rebuild_texture")
+	var map_image := (overlay.get("_texture") as ImageTexture).get_image()
+	var unvisited_cell := Vector2i(-1, -1)
 	for y in map.size.y:
 		for x in map.size.x:
-			if dungeon._fog_image.get_pixel(x, y).g > 0.5:
-				glowing += 1
-	if glowing == 0:
-		_fail("no door glows next to the start room")
-	var target := -1
-	for piece in map.pieces:
-		if not dungeon.explored.has(piece.index):
-			target = piece.index
-			break
-	var cell := Vector2i.ZERO
-	for y in map.size.y:
-		for x in map.size.x:
-			if map.get_owner(x, y) == target:
-				cell = Vector2i(x, y)
-	if dungeon._fog_image.get_pixel(cell.x, cell.y).r != 0.0:
-		_fail("unexplored cell is not fogged")
-	if dungeon.piece_at((Vector2(cell) + Vector2(0.5, 0.5)) * dungeon.cell_size()) != target:
-		_fail("piece_at found the wrong piece")
-	dungeon.explore(target)
-	dungeon._process(dungeon.fade_time / 2.0)
-	var halfway := dungeon._fog_image.get_pixel(cell.x, cell.y).r
-	if halfway < 0.3 or halfway > 0.7:
-		_fail("fade is not gradual (%f at half time)" % halfway)
-	dungeon._process(dungeon.fade_time)
-	if dungeon._fog_image.get_pixel(cell.x, cell.y).r != 1.0:
-		_fail("explored cell is still fogged")
+			var owner := map.get_owner(x, y)
+			var visible := map_image.get_pixel(x, y).a > 0.99
+			if visible != (owner >= 0 and dungeon.explored.has(owner)):
+				_fail("map visibility is wrong at %s" % Vector2i(x, y))
+			if owner >= 0 and not dungeon.explored.has(owner):
+				unvisited_cell = Vector2i(x, y)
+			if owner >= 0 and dungeon.piece_at((Vector2(x, y) + Vector2(0.5, 0.5)) * dungeon.cell_size()) != owner:
+				_fail("piece_at found the wrong piece at %s" % Vector2i(x, y))
+	if unvisited_cell.x < 0:
+		_fail("generated map has no unvisited room")
+	else:
+		var marker := Node2D.new()
+		root.add_child(marker)
+		marker.global_position = dungeon.to_global((Vector2(unvisited_cell) + Vector2(0.5, 0.5)) * dungeon.cell_size())
+		dungeon.track(marker)
+		dungeon._process(0.0)
+		if not dungeon.explored.has(map.get_owner(unvisited_cell.x, unvisited_cell.y)):
+			_fail("entering a room did not reveal it on the map")
+		overlay.call("_rebuild_texture")
+		map_image = (overlay.get("_texture") as ImageTexture).get_image()
+		if map_image.get_pixel(unvisited_cell.x, unvisited_cell.y).a < 0.99:
+			_fail("visited room is still hidden on the map")
+		dungeon.track(null)
+		marker.free()
 	dungeon.generate(1)
 	if dungeon.explored.size() != 1:
-		_fail("rebuilding did not reset exploration")
+		_fail("rebuilding did not reset visited rooms")
+	overlay.free()
 
 
 func _check_tile_exists(theme: DungeonTheme, layer: TileMapLayer, at: Vector2i) -> void:

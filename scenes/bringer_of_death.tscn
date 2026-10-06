@@ -14,7 +14,7 @@ floor_snap_length = 4.0
 script = ExtResource("1_bringer")
 coin_drop = Vector2i(4, 8)
 potion_drop_chance = 0.15
-max_health = 15
+max_health = 12
 
 [node name="Hitbox" type="CollisionShape2D" parent="." unique_id=1396243582]
 position = Vector2(0, -27)

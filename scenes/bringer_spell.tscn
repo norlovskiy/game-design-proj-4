@@ -1,6 +1,12 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" uid="uid://dtkw58ct0dcjf" path="res://scripts/bringer_spell.gd" id="1_spell"]
+[ext_resource type="Shader" path="res://shaders/hit_flash.gdshader" id="2_outline"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_outline"]
+shader = ExtResource("2_outline")
+shader_parameter/outline_color = Color(1, 0.08, 0.08, 1)
+shader_parameter/outline_width = 2.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_spell"]
 size = Vector2(34, 58)
@@ -9,6 +15,8 @@ size = Vector2(34, 58)
 script = ExtResource("1_spell")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+material = SubResource("ShaderMaterial_outline")
+modulate = Color(1, 0.65, 0.65, 1)
 texture_filter = 1
 position = Vector2(2, -46.5)
 

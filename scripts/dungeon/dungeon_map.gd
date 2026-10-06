@@ -1,6 +1,6 @@
 class_name DungeonMap
 extends CanvasLayer
-## Full-screen map of the explored pieces. Tab toggles it and pauses the game.
+## Full-screen map of visited rooms. Tab toggles it and pauses the game.
 
 const MapPiece := preload("res://scripts/mapgen/map_piece.gd")
 
@@ -53,7 +53,7 @@ func set_open(open: bool) -> void:
 		_view.queue_redraw()
 
 
-## One pixel per map cell; cells of unexplored pieces stay transparent.
+## One pixel per map cell; unvisited rooms stay transparent.
 func _rebuild_texture() -> void:
 	var map := _dungeon.result
 	var image := Image.create_empty(map.size.x, map.size.y, false, Image.FORMAT_RGBA8)

@@ -15,8 +15,12 @@ const SPRITE_SHEET: Texture2D = preload(
 )
 const SPELL_SCENE: PackedScene = preload("res://scenes/bringer_spell.tscn")
 const FRAME_SIZE := Vector2(140.0, 93.0)
-const ATTACK_ACTIVE_FRAMES := [4, 5, 6, 7, 8]
+const ATTACK_ACTIVE_FRAMES := [6, 7, 8, 9, 10]
 const CAST_SPAWN_FRAME := 5
+const SPELL_COUNT := 3
+const SPELL_SPACING := 48.0
+## Longer than the spell's eight active frames at 12 frames per second.
+const SPELL_ACTIVATION_INTERVAL := 0.75
 
 const IDLE_FRAMES := [
 	Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0),
@@ -28,6 +32,8 @@ const WALK_FRAMES := [
 ]
 const ATTACK_FRAMES := [
 	Vector2i(0, 2), Vector2i(1, 2), Vector2i(2, 2), Vector2i(3, 2),
+	# Hold the windup for two more frames before the slash and hitbox begin.
+	Vector2i(3, 2), Vector2i(3, 2),
 	Vector2i(4, 2), Vector2i(5, 2), Vector2i(6, 2), Vector2i(7, 2),
 	Vector2i(0, 3), Vector2i(1, 3),
 ]
@@ -141,7 +147,7 @@ func _update_behavior(delta: float) -> void:
 	if horizontal_distance <= spell_range:
 		velocity.x = move_toward(velocity.x, 0.0, deceleration * delta)
 		if _spell_cooldown_remaining <= 0.0:
-			_cast_position = Vector2(_target.global_position.x, global_position.y)
+			_cast_position = _target.global_position
 			_set_state(State.CAST)
 		else:
 			_set_state(State.IDLE)
@@ -209,12 +215,24 @@ func _set_attack_active(active: bool) -> void:
 
 func _spawn_spell() -> void:
 	_spell_spawned = true
-	var spell := SPELL_SCENE.instantiate()
 	var spell_parent := get_tree().current_scene
 	if not is_instance_valid(spell_parent):
 		spell_parent = get_parent()
-	spell_parent.add_child(spell)
-	spell.global_position = _cast_position
+	for index in SPELL_COUNT:
+		var spell := SPELL_SCENE.instantiate() as BringerSpell
+		spell.activation_delay = index * SPELL_ACTIVATION_INTERVAL
+		spell_parent.add_child(spell)
+		var spell_x := _cast_position.x + _facing * SPELL_SPACING * (1 - index)
+		spell.global_position = Vector2(spell_x, _spell_floor_y(spell_x))
+
+
+func _spell_floor_y(spell_x: float) -> float:
+	var origin := Vector2(spell_x, _cast_position.y - 20.0)
+	var query := PhysicsRayQueryParameters2D.create(origin, origin + Vector2.DOWN * 512.0, 1)
+	var floor_hit := get_world_2d().direct_space_state.intersect_ray(query)
+	if not floor_hit.is_empty():
+		return floor_hit.position.y
+	return global_position.y
 
 
 func _on_animation_finished() -> void:

@@ -29,7 +29,7 @@ const POTION_HEAL_AMOUNT := 1
 @export_range(1, 10) var max_hp := 6
 @export_range(1.0, 200.0, 1.0) var max_stamina := 100.0
 @export_range(0.0, 100.0, 1.0) var roll_stamina_cost := 25.0
-@export var stamina_regen_rate := 20.0
+@export var stamina_regen_rate := 30.0
 @export var stamina_regen_delay := 0.75
 @export_range(1.0, 200.0, 1.0) var max_mana := 100.0
 @export var mana_regen_rate := 10.0
@@ -156,6 +156,7 @@ func _physics_process(delta: float) -> void:
 		coyote_remaining = maxf(0.0, coyote_remaining - delta)
 
 	var was_rolling := is_rolling
+	var was_attacking := is_attacking
 	if not is_rolling and not is_hurt and roll_just_pressed and is_on_floor() \
 		and spend_stamina(get_roll_stamina_cost()):
 		if is_attacking:
@@ -173,6 +174,10 @@ func _physics_process(delta: float) -> void:
 			_request_attack(horizontal_input)
 		if cast_just_pressed and not is_attacking and staff_cast_remaining == 0.0:
 			_try_cast_staff(horizontal_input)
+	if was_attacking and is_attacking and not is_hurt and jump_just_pressed \
+			and (is_on_floor() or coyote_remaining > 0.0 \
+				or (has_double_jump and not air_jump_used)):
+		_cancel_attack()
 	if not is_rolling and not is_hurt and not is_attacking and staff_cast_remaining == 0.0:
 		if horizontal_input != 0:
 			animated_sprite.flip_h = horizontal_input < 0
