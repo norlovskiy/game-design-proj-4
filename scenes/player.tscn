@@ -1,15 +1,15 @@
 [gd_scene format=3 uid="uid://clt6j28p275kk"]
 
-[ext_resource type="Texture2D" uid="uid://b0wyc7l4kswei" path="res://assets/_Idle.png" id="1_3vyb7"]
+[ext_resource type="Texture2D" uid="uid://b0wyc7l4kswei" path="res://assets/player/_Idle.png" id="1_3vyb7"]
 [ext_resource type="Script" uid="uid://cgaxmvorfbh4c" path="res://scripts/player.gd" id="1_qhqgy"]
-[ext_resource type="Texture2D" uid="uid://b3i4skbi7m7gd" path="res://assets/_Run.png" id="2_g2els"]
-[ext_resource type="Texture2D" path="res://assets/_Jump.png" id="3_jump"]
-[ext_resource type="Texture2D" path="res://assets/_JumpFallInbetween.png" id="4_jump_fall"]
-[ext_resource type="Texture2D" path="res://assets/_Fall.png" id="5_fall"]
-[ext_resource type="Texture2D" path="res://assets/_Roll.png" id="6_roll"]
-[ext_resource type="Texture2D" path="res://assets/_Hit.png" id="7_hit"]
-[ext_resource type="Texture2D" path="res://assets/_Death.png" id="8_death"]
-[ext_resource type="Texture2D" path="res://assets/_AttackCombo.png" id="9_attack"]
+[ext_resource type="Texture2D" uid="uid://b3i4skbi7m7gd" path="res://assets/player/_Run.png" id="2_g2els"]
+[ext_resource type="Texture2D" path="res://assets/player/_Jump.png" id="3_jump"]
+[ext_resource type="Texture2D" path="res://assets/player/_JumpFallInbetween.png" id="4_jump_fall"]
+[ext_resource type="Texture2D" path="res://assets/player/_Fall.png" id="5_fall"]
+[ext_resource type="Texture2D" path="res://assets/player/_Roll.png" id="6_roll"]
+[ext_resource type="Texture2D" path="res://assets/player/_Hit.png" id="7_hit"]
+[ext_resource type="Texture2D" path="res://assets/player/_Death.png" id="8_death"]
+[ext_resource type="Texture2D" path="res://assets/player/_AttackCombo.png" id="9_attack"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_g2els"]
 atlas = ExtResource("1_3vyb7")
@@ -417,6 +417,9 @@ size = Vector2(16, 38)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_iq1xx"]
 size = Vector2(15, 37)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+radius = 28.0
+
 [node name="Player" type="Node2D" unique_id=920989453]
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["player"] unique_id=287472683]
@@ -450,6 +453,15 @@ monitorable = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/AttackHitbox"]
 shape = SubResource("RectangleShape2D_attack")
 disabled = true
+
+[node name="PickupArea" type="Area2D" parent="CharacterBody2D"]
+position = Vector2(0, -12)
+collision_layer = 0
+collision_mask = 16
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D/PickupArea"]
+shape = SubResource("CircleShape2D_pickup")
 
 [connection signal="body_entered" from="CharacterBody2D/AttackHitbox" to="CharacterBody2D" method="_on_attack_hitbox_body_entered"]
 [connection signal="frame_changed" from="CharacterBody2D/AnimatedSprite2D" to="CharacterBody2D" method="_on_animated_sprite_frame_changed"]

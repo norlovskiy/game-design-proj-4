@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/bringer_of_death.tscn" id="4_jyhfs"]
 [ext_resource type="PackedScene" path="res://scenes/eyeball_monster.tscn" id="5_eyeball"]
 [ext_resource type="PackedScene" path="res://scenes/player_hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://scenes/item_pickup.tscn" id="4_pickup"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1152, 40)
@@ -16,7 +17,43 @@ size = Vector2(1152, 40)
 position = Vector2(311, 190)
 
 [node name="NightBorne" parent="." unique_id=1991635246 instance=ExtResource("2_nightborne")]
-position = Vector2(7, 195)
+position = Vector2(1020, 200)
+
+[node name="SwordPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(370, 182)
+
+[node name="ArcaneStaffPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(440, 182)
+kind = 1
+
+[node name="PiercingStaffPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(510, 182)
+kind = 1
+variant = 1
+
+[node name="FrostStaffPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(580, 182)
+kind = 1
+variant = 2
+
+[node name="HealthRingPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(650, 182)
+kind = 2
+
+[node name="StaminaRingPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(720, 182)
+kind = 2
+variant = 1
+
+[node name="ManaRingPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(790, 182)
+kind = 2
+variant = 2
+
+[node name="RedPotionPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(860, 182)
+kind = 3
+
 
 [node name="FlyingDemon" parent="." unique_id=1614877267 instance=ExtResource("3_flying_demon")]
 position = Vector2(800, 105)
