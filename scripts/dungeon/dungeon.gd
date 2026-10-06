@@ -20,6 +20,8 @@ const FOG_SHADER := preload("res://shaders/dungeon_fog.gdshader")
 @export var theme: DungeonTheme
 ## Enemies to spawn after painting. Leave empty for a dungeon with none.
 @export var spawn_table: DungeonSpawnTable
+## Pickups to place after painting. Leave empty for a dungeon with none.
+@export var item_table: DungeonItemTable
 
 var result: MapGenerator.Result
 var background: TileMapLayer
@@ -27,6 +29,8 @@ var props: TileMapLayer
 var foreground: TileMapLayer
 ## Spawned enemies live under this node.
 var enemies: Node2D
+## Spawned pickups live under this node.
+var items: Node2D
 ## Indices of the pieces the player has entered.
 var explored := {}
 
@@ -82,6 +86,11 @@ func build(map: MapGenerator.Result) -> void:
 	add_child(enemies)
 	if spawn_table != null:
 		DungeonSpawner.populate(self, spawn_table, enemies)
+	items = Node2D.new()
+	items.name = "Items"
+	add_child(items)
+	if item_table != null:
+		DungeonItemSpawner.populate(self, item_table, items)
 	_build_fog()
 	explored.clear()
 	_fades.clear()
