@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://bremrr0kny7i"]
 
 [ext_resource type="Script" uid="uid://l3e1uch2unsc" path="res://scripts/bringer_of_death.gd" id="1_bringer"]
 
@@ -8,26 +8,25 @@ size = Vector2(28, 54)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
 size = Vector2(110, 64)
 
-[node name="BringerOfDeath" type="CharacterBody2D"]
+[node name="BringerOfDeath" type="CharacterBody2D" unique_id=143457074]
 collision_layer = 4
-collision_mask = 1
 floor_snap_length = 4.0
 script = ExtResource("1_bringer")
 max_health = 15
 
-[node name="Hitbox" type="CollisionShape2D" parent="."]
+[node name="Hitbox" type="CollisionShape2D" parent="." unique_id=1396243582]
 position = Vector2(0, -27)
 shape = SubResource("RectangleShape2D_body")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1890047157]
 texture_filter = 1
 position = Vector2(-35, -46.5)
 
-[node name="AttackHitbox" type="Area2D" parent="." groups=["enemy_hitboxes"]]
+[node name="AttackHitbox" type="Area2D" parent="." unique_id=806359410 groups=["enemy_hitboxes"]]
 position = Vector2(-48, -34)
 collision_layer = 2
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHitbox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHitbox" unique_id=568444933]
 shape = SubResource("RectangleShape2D_attack")
 disabled = true
