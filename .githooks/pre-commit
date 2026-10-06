@@ -1,0 +1,25 @@
+#!/bin/sh
+# Refuses a commit when the hand-tuned resource files have lost settings.
+# Godot's editor sometimes re-saves .tres files without their PackedStringArray
+# values; tests/data_test.gd catches that. Only runs when a resource, dungeon
+# script or that test is staged. Skip once with: git commit --no-verify
+#
+# Enable in a fresh clone: git config core.hooksPath .githooks
+
+if ! git diff --cached --name-only | grep -qE '\.(tres|tscn)$|^scripts/dungeon/|^data/|^tests/data_test\.gd$'; then
+	exit 0
+fi
+if ! command -v godot >/dev/null 2>&1; then
+	echo "pre-commit: godot not found, skipping the data check" >&2
+	exit 0
+fi
+
+root=$(git rev-parse --show-toplevel)
+output=$(godot --headless --path "$root" -s tests/data_test.gd 2>&1)
+status=$?
+if [ $status -ne 0 ]; then
+	echo "$output" | grep -vE '^  |leaked|still in use|^Godot Engine|^$' >&2
+	echo "pre-commit: tests/data_test.gd failed. A .tres file probably lost settings;" >&2
+	echo "restore it with git checkout, or skip this check with --no-verify." >&2
+	exit 1
+fi
