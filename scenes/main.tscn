@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://clt6j28p275kk" path="res://scenes/player.tscn" id="1_o5qli"]
 [ext_resource type="PackedScene" path="res://scenes/nightborne.tscn" id="2_nightborne"]
+[ext_resource type="PackedScene" path="res://scenes/player_hud.tscn" id="3_hud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1152, 40)
@@ -23,3 +24,5 @@ shape = SubResource("RectangleShape2D_ground")
 [node name="Polygon2D" type="Polygon2D" parent="Ground"]
 color = Color(0.22, 0.24, 0.29, 1)
 polygon = PackedVector2Array(-576, -20, 576, -20, 576, 20, -576, 20)
+
+[node name="PlayerHUD" parent="." instance=ExtResource("3_hud")]
