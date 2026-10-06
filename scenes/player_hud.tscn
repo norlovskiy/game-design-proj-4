@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://assets/ui.png" id="1_ui"]
+[ext_resource type="Texture2D" path="res://assets/player/ui.png" id="1_ui"]
 [ext_resource type="Script" path="res://scripts/player_hud.gd" id="2_hud"]
 
 [sub_resource type="AtlasTexture" id="ResourceFrame"]
@@ -85,27 +85,30 @@ texture_filter = 1
 
 [node name="ItemSlot1" type="TextureRect" parent="Layout/ItemFrames"]
 visible = false
-offset_left = 20.0
-offset_top = 4.0
-offset_right = 60.0
-offset_bottom = 44.0
+offset_left = 19.0
+offset_top = 0.0
+offset_right = 59.0
+offset_bottom = 40.0
 mouse_filter = 2
 stretch_mode = 5
+texture_filter = 1
 
 [node name="ItemSlot2" type="TextureRect" parent="Layout/ItemFrames"]
 visible = false
 offset_left = 70.0
-offset_top = 4.0
+offset_top = 0.0
 offset_right = 110.0
-offset_bottom = 44.0
+offset_bottom = 40.0
 mouse_filter = 2
 stretch_mode = 5
+texture_filter = 1
 
 [node name="ItemSlot3" type="TextureRect" parent="Layout/ItemFrames"]
 visible = false
-offset_left = 120.0
-offset_top = 4.0
-offset_right = 160.0
-offset_bottom = 44.0
+offset_left = 117.0
+offset_top = 1.0
+offset_right = 157.0
+offset_bottom = 41.0
 mouse_filter = 2
 stretch_mode = 5
+texture_filter = 1

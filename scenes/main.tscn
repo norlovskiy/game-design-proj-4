@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://clt6j28p275kk" path="res://scenes/player.tscn" id="1_o5qli"]
 [ext_resource type="PackedScene" path="res://scenes/nightborne.tscn" id="2_nightborne"]
 [ext_resource type="PackedScene" path="res://scenes/player_hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://scenes/item_pickup.tscn" id="4_pickup"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(1152, 40)
@@ -13,7 +14,42 @@ size = Vector2(1152, 40)
 position = Vector2(311, 190)
 
 [node name="NightBorne" parent="." instance=ExtResource("2_nightborne")]
-position = Vector2(510, 200)
+position = Vector2(1020, 200)
+
+[node name="SwordPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(370, 182)
+
+[node name="ArcaneStaffPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(440, 182)
+kind = 1
+
+[node name="PiercingStaffPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(510, 182)
+kind = 1
+variant = 1
+
+[node name="FrostStaffPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(580, 182)
+kind = 1
+variant = 2
+
+[node name="HealthRingPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(650, 182)
+kind = 2
+
+[node name="StaminaRingPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(720, 182)
+kind = 2
+variant = 1
+
+[node name="ManaRingPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(790, 182)
+kind = 2
+variant = 2
+
+[node name="RedPotionPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(860, 182)
+kind = 3
 
 [node name="Ground" type="StaticBody2D" parent="."]
 position = Vector2(576, 220)

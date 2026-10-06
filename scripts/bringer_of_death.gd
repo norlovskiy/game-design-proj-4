@@ -84,6 +84,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	advance_status(delta)
 	_melee_cooldown_remaining = maxf(_melee_cooldown_remaining - delta, 0.0)
 	_spell_cooldown_remaining = maxf(_spell_cooldown_remaining - delta, 0.0)
 
@@ -144,7 +145,7 @@ func _update_behavior(delta: float) -> void:
 			_set_state(State.IDLE)
 		return
 
-	velocity.x = move_toward(velocity.x, _facing * walk_speed, acceleration * delta)
+	velocity.x = move_toward(velocity.x, _facing * walk_speed * movement_multiplier, acceleration * delta)
 	_set_state(State.WALK)
 
 

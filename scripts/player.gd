@@ -2,10 +2,11 @@ extends CharacterBody2D
 
 signal lives_changed(lives_remaining: int)
 signal resources_changed(hp: int, stamina: float, mana: float)
+signal equipment_changed(slot: int, icon: Texture2D)
 signal died
 
 const MOVE_SPEED := 200.0
-const ROLL_SPEED := 320.0
+const ROLL_SPEED := 280.0
 const JUMP_VELOCITY := -400.0
 const HIT_RECOVERY_DURATION := 0.25
 const HIT_FLASH_DURATION := 0.15
@@ -13,6 +14,10 @@ const HIT_INVINCIBILITY_DURATION := 1.0
 const COMBO_WINDOW_DURATION := 0.35
 const ATTACK_ACTIVE_FRAMES := [1, 2]
 const ATTACK_REACH := 24.0
+const STAFF_PROJECTILE_SCENE: PackedScene = preload("res://scenes/staff_projectile.tscn")
+const STAFF_MANA_COST := 20.0
+const STAFF_CAST_LOCK_DURATION := 0.4
+const HEALTH_RING_INTERVAL := 20.0
 
 @export_range(1, 10) var max_hp := 3
 @export_range(1.0, 200.0, 1.0) var max_stamina := 100.0
@@ -27,6 +32,7 @@ const ATTACK_REACH := 24.0
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var attack_hitbox: Area2D = $AttackHitbox
 @onready var attack_shape: CollisionShape2D = $AttackHitbox/CollisionShape2D
+@onready var pickup_area: Area2D = $PickupArea
 @onready var hp := max_hp
 @onready var stamina := max_stamina
 @onready var mana := max_mana
@@ -36,11 +42,18 @@ var is_attacking := false
 var is_hurt := false
 var is_dead := false
 var attack_damage_bonus := 0
+var has_sword := false
+var staff_variant := -1
+var ring_variant := -1
+var health_regen_elapsed := 0.0
 var roll_direction := 1
 var jump_was_pressed := false
 var roll_was_pressed := false
 var attack_key_was_pressed := false
 var attack_mouse_was_pressed := false
+var pickup_was_pressed := false
+var cast_key_was_pressed := false
+var cast_mouse_was_pressed := false
 var queued_second_attack := false
 var combo_window_remaining := 0.0
 var hit_targets: Array[int] = []
@@ -49,6 +62,7 @@ var hit_flash_remaining := 0.0
 var hit_invincibility_remaining := 0.0
 var stamina_regen_wait := 0.0
 var mana_regen_wait := 0.0
+var staff_cast_remaining := 0.0
 var max_lives: int:
 	get:
 		return max_hp
@@ -67,6 +81,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_advance_hit_state(delta)
 	_advance_resources(delta)
+	staff_cast_remaining = maxf(0.0, staff_cast_remaining - delta)
 	if combo_window_remaining > 0.0:
 		combo_window_remaining = maxf(0.0, combo_window_remaining - delta)
 	if is_dead:
@@ -80,30 +95,50 @@ func _physics_process(delta: float) -> void:
 	var roll_pressed := Input.is_physical_key_pressed(KEY_SHIFT)
 	var attack_key_pressed := Input.is_physical_key_pressed(KEY_J)
 	var attack_mouse_pressed := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	var pickup_pressed := Input.is_physical_key_pressed(KEY_F)
+	var cast_key_pressed := Input.is_physical_key_pressed(KEY_K)
+	var cast_mouse_pressed := Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
 	var jump_just_pressed := jump_pressed and not jump_was_pressed
 	var roll_just_pressed := roll_pressed and not roll_was_pressed
 	var attack_just_pressed := (attack_key_pressed and not attack_key_was_pressed) or \
 		(attack_mouse_pressed and not attack_mouse_was_pressed)
+	var pickup_just_pressed := pickup_pressed and not pickup_was_pressed
+	var cast_just_pressed := (cast_key_pressed and not cast_key_was_pressed) or \
+		(cast_mouse_pressed and not cast_mouse_was_pressed)
 	jump_was_pressed = jump_pressed
 	roll_was_pressed = roll_pressed
 	attack_key_was_pressed = attack_key_pressed
 	attack_mouse_was_pressed = attack_mouse_pressed
+	pickup_was_pressed = pickup_pressed
+	cast_key_was_pressed = cast_key_pressed
+	cast_mouse_was_pressed = cast_mouse_pressed
+	if pickup_just_pressed:
+		_try_pickup()
 
 	_apply_gravity(delta)
 
+	if not is_rolling and not is_hurt and roll_just_pressed and is_on_floor() \
+		and spend_stamina(get_roll_stamina_cost()):
+		if is_attacking:
+			_cancel_attack()
+		staff_cast_remaining = 0.0
+		_start_roll(horizontal_input)
+
 	if not is_rolling and not is_hurt:
-		if attack_just_pressed:
+		if attack_just_pressed and staff_cast_remaining == 0.0:
 			_request_attack(horizontal_input)
-	if not is_rolling and not is_hurt and not is_attacking:
+		if cast_just_pressed and not is_attacking and staff_cast_remaining == 0.0:
+			_try_cast_staff(horizontal_input)
+	if not is_rolling and not is_hurt and not is_attacking and staff_cast_remaining == 0.0:
 		if horizontal_input != 0:
 			animated_sprite.flip_h = horizontal_input < 0
-		if roll_just_pressed and is_on_floor() and spend_stamina(roll_stamina_cost):
-			_start_roll(horizontal_input)
-		elif jump_just_pressed and is_on_floor():
+		if jump_just_pressed and is_on_floor():
 			velocity.y = JUMP_VELOCITY
 			_play_animation("jump")
 
 	if is_hurt:
+		velocity.x = 0.0
+	elif (is_attacking or staff_cast_remaining > 0.0) and is_on_floor():
 		velocity.x = 0.0
 	else:
 		velocity.x = roll_direction * ROLL_SPEED if is_rolling else horizontal_input * MOVE_SPEED
@@ -151,6 +186,92 @@ func _advance_resources(delta: float) -> void:
 		changed = true
 	if changed:
 		_emit_resources_changed()
+	if ring_variant == 0 and hp > 0 and hp < max_hp:
+		health_regen_elapsed += delta
+		if health_regen_elapsed >= HEALTH_RING_INTERVAL:
+			health_regen_elapsed = 0.0
+			restore_hp(1)
+	else:
+		health_regen_elapsed = 0.0
+
+
+func get_roll_stamina_cost() -> float:
+	return maxf(0.0, roll_stamina_cost - (10.0 if ring_variant == 1 else 0.0))
+
+
+func get_staff_mana_cost() -> float:
+	return maxf(0.0, STAFF_MANA_COST - (5.0 if ring_variant == 2 else 0.0))
+
+
+func receive_pickup(kind: int, variant: int) -> bool:
+	if is_dead:
+		return false
+	match kind:
+		ItemPickup.Kind.SWORD:
+			if has_sword:
+				return false
+			has_sword = true
+			attack_damage_bonus += 1
+			equipment_changed.emit(0, ItemPickup.icon_for(kind, 0))
+		ItemPickup.Kind.STAFF:
+			if variant < 0 or variant > 2 or staff_variant == variant:
+				return false
+			staff_variant = variant
+			equipment_changed.emit(1, ItemPickup.icon_for(kind, variant))
+		ItemPickup.Kind.RING:
+			if variant < 0 or variant > 2 or ring_variant == variant:
+				return false
+			ring_variant = variant
+			health_regen_elapsed = 0.0
+			equipment_changed.emit(2, ItemPickup.icon_for(kind, variant))
+		ItemPickup.Kind.RED_POTION:
+			if hp >= max_hp or hp <= 0:
+				return false
+			restore_hp(1)
+		_:
+			return false
+	return true
+
+
+func get_equipped_icon(slot: int) -> Texture2D:
+	match slot:
+		0:
+			return ItemPickup.icon_for(ItemPickup.Kind.SWORD, 0) if has_sword else null
+		1:
+			return ItemPickup.icon_for(ItemPickup.Kind.STAFF, staff_variant) if staff_variant >= 0 else null
+		2:
+			return ItemPickup.icon_for(ItemPickup.Kind.RING, ring_variant) if ring_variant >= 0 else null
+	return null
+
+
+func _try_pickup() -> void:
+	var closest: ItemPickup
+	var closest_distance := INF
+	for area in pickup_area.get_overlapping_areas():
+		if not area is ItemPickup:
+			continue
+		var distance := global_position.distance_squared_to(area.global_position)
+		if distance < closest_distance:
+			closest = area as ItemPickup
+			closest_distance = distance
+	if closest != null:
+		closest.collect(self)
+
+
+func _try_cast_staff(horizontal_input: int = 0) -> void:
+	if staff_variant < 0 or not spend_mana(get_staff_mana_cost()):
+		return
+	if horizontal_input != 0:
+		animated_sprite.flip_h = horizontal_input < 0
+	staff_cast_remaining = STAFF_CAST_LOCK_DURATION
+	var projectile := STAFF_PROJECTILE_SCENE.instantiate() as StaffProjectile
+	projectile.variant = staff_variant as StaffProjectile.Variant
+	projectile.direction = -1 if animated_sprite.flip_h else 1
+	var projectile_parent := get_tree().current_scene
+	if projectile_parent == null:
+		projectile_parent = get_parent()
+	projectile_parent.add_child(projectile)
+	projectile.global_position = global_position + Vector2(projectile.direction * 20.0, -18.0)
 
 
 func _emit_resources_changed() -> void:
@@ -244,6 +365,9 @@ func get_attack_damage() -> int:
 func _update_animation(horizontal_input: int) -> void:
 	if is_rolling or is_attacking or is_hurt or is_dead:
 		return
+	if staff_cast_remaining > 0.0 and is_on_floor():
+		_play_animation("default")
+		return
 	if is_on_floor():
 		_play_animation("run" if horizontal_input != 0 else "default")
 	elif velocity.y < 0.0:
@@ -293,7 +417,9 @@ func take_hit() -> bool:
 	if not can_take_damage():
 		return false
 	_cancel_attack()
+	staff_cast_remaining = 0.0
 	hp -= 1
+	health_regen_elapsed = 0.0
 	is_hurt = true
 	hit_recovery_remaining = HIT_RECOVERY_DURATION
 	hit_flash_remaining = HIT_FLASH_DURATION
