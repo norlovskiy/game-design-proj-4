@@ -1,3 +1,4 @@
+@tool
 class_name DungeonDecoration
 extends Resource
 ## A block of tiles stamped into open space: a window, a torch, a barrel.

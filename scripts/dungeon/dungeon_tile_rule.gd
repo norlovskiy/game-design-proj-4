@@ -1,3 +1,4 @@
+@tool
 class_name DungeonTileRule
 extends Resource
 ## Which tileset tiles to paint for one situation.

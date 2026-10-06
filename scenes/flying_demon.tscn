@@ -1,13 +1,26 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://hf1oka1ufowq"]
 
-[ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="1_enemy"]
-[ext_resource type="Script" path="res://scripts/flying_demon.gd" id="2_demon"]
+[ext_resource type="PackedScene" uid="uid://d14alafdoekcn" path="res://scenes/enemy.tscn" id="1_enemy"]
+[ext_resource type="Script" uid="uid://mhq2n2o4jv62" path="res://scripts/flying_demon.gd" id="2_demon"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(30, 36)
 
-[node name="FlyingDemon" instance=ExtResource("1_enemy")]
+[node name="FlyingDemon" unique_id=723558440 instance=ExtResource("1_enemy")]
 script = ExtResource("2_demon")
+patrol_radius = 90.0
+patrol_speed = 55.0
+patrol_bob_height = 12.0
+max_flight_height = 80.0
+aggro_range = 340.0
+disengage_range = 440.0
+move_speed = 115.0
+acceleration = 450.0
+preferred_distance = 175.0
+preferred_height = 75.0
+position_tolerance = 22.0
+attack_cooldown = 1.6
+projectile_speed = 230.0
 coin_drop = Vector2i(2, 5)
 potion_drop_chance = 0.08
 max_health = 4
@@ -15,5 +28,5 @@ max_health = 4
 [node name="Hitbox" parent="." index="0"]
 shape = SubResource("RectangleShape2D_body")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." index="1"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." index="1" unique_id=1116699252]
 texture_filter = 1

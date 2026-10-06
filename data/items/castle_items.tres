@@ -50,6 +50,7 @@ price = 15
 
 [sub_resource type="Resource" id="Pool_item_rooms"]
 script = ExtResource("2_pool")
+rooms = PackedStringArray("item")
 entries = Array[ExtResource("3_entry")]([SubResource("Entry_sword"), SubResource("Entry_staff_0"), SubResource("Entry_staff_1"), SubResource("Entry_staff_2"), SubResource("Entry_ring_0"), SubResource("Entry_ring_1"), SubResource("Entry_ring_2"), SubResource("Entry_red_potion")])
 
 [sub_resource type="Resource" id="Entry_key"]

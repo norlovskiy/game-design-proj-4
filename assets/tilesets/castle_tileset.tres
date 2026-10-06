@@ -1,7 +1,7 @@
 [gd_resource type="TileSet" format=3 uid="uid://cl18vt13dghk6"]
 
-[ext_resource type="Texture2D" path="res://assets/tilesets/oppcastle-mod-tiles.png" id="1_mngir"]
-[ext_resource type="Texture2D" path="res://assets/tilesets/oppcastle-tiles.png" id="2_nhww7"]
+[ext_resource type="Texture2D" uid="uid://dgxl5eom1rqjg" path="res://assets/tilesets/oppcastle-mod-tiles.png" id="1_mngir"]
+[ext_resource type="Texture2D" uid="uid://h3sduvxonn6" path="res://assets/tilesets/oppcastle-tiles.png" id="2_nhww7"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_nhww7"]
 texture = ExtResource("1_mngir")

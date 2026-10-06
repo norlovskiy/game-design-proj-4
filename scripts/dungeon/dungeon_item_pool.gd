@@ -1,3 +1,4 @@
+@tool
 class_name DungeonItemPool
 extends Resource
 ## A set of items and the rooms that draw from it.

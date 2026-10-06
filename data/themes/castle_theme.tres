@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="DungeonTheme" format=3 uid="uid://g8gsl1bih7as"]
 
-[ext_resource type="Script" path="res://scripts/dungeon/dungeon_decoration.gd" id="1_nylww"]
-[ext_resource type="Script" path="res://scripts/dungeon/dungeon_theme.gd" id="2_wtvke"]
-[ext_resource type="Script" path="res://scripts/dungeon/dungeon_tile_rule.gd" id="3_lykfm"]
+[ext_resource type="Script" uid="uid://bac0ew0wtgkdq" path="res://scripts/dungeon/dungeon_decoration.gd" id="1_nylww"]
+[ext_resource type="Script" uid="uid://duxs8sc2rfdu7" path="res://scripts/dungeon/dungeon_theme.gd" id="2_wtvke"]
+[ext_resource type="Script" uid="uid://cac5dsug7lly7" path="res://scripts/dungeon/dungeon_tile_rule.gd" id="3_lykfm"]
 [ext_resource type="TileSet" uid="uid://cl18vt13dghk6" path="res://assets/tilesets/castle_tileset.tres" id="4_au2rg"]
 
 [sub_resource type="Resource" id="Resource_3crh4"]

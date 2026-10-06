@@ -86,6 +86,12 @@ func can_target(node: Node) -> bool:
 	return not (arena is Rect2 and arena.has_area() and not arena.has_point(global_position))
 
 
+func _enter_tree() -> void:
+	# Gives the sprite the shader up front so the red outline is always drawn,
+	# not only after the first hit or frost.
+	_get_effect_material()
+
+
 func apply_frost(duration: float, slow_multiplier: float = 0.5) -> void:
 	if health <= 0:
 		return

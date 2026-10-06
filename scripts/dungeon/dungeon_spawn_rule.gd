@@ -1,3 +1,4 @@
+@tool
 class_name DungeonSpawnRule
 extends Resource
 ## Where and how often one kind of enemy appears.
