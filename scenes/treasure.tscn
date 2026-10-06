@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/treasure.gd" id="1_treasure"]
+[ext_resource type="Texture2D" path="res://assets/items/treasure.png" id="2_sprite"]
+[ext_resource type="Shader" path="res://shaders/treasure_aura.gdshader" id="3_aura"]
+
+[sub_resource type="ShaderMaterial" id="AuraMaterial"]
+shader = ExtResource("3_aura")
+
+[sub_resource type="CircleShape2D" id="ClaimShape"]
+radius = 14.0
+
+[node name="Treasure" type="Area2D"]
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("1_treasure")
+
+[node name="Aura" type="ColorRect" parent="."]
+material = SubResource("AuraMaterial")
+offset_left = -56.0
+offset_top = -56.0
+offset_right = 56.0
+offset_bottom = 56.0
+mouse_filter = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(2, 2)
+texture = ExtResource("2_sprite")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("ClaimShape")

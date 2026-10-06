@@ -52,6 +52,11 @@ var ring_variant := -1
 var potion_count := 0
 var gold := 0
 var key_count := 0
+var has_double_jump := false
+var air_jump_used := false
+## The boss room, in global pixels, while the player is inside it; otherwise
+## empty. Enemies outside it leave the player alone.
+var arena_rect := Rect2()
 var health_regen_elapsed := 0.0
 var roll_direction := 1
 var jump_was_pressed := false
@@ -80,13 +85,22 @@ var lives_remaining: int:
 ## Set while the player is somewhere enemies can't hurt or target them, such
 ## as the shop.
 var is_safe := false
+## Debug toggle: F1 stops all damage to the player.
+var damage_disabled := false
 var is_invincible: bool:
 	get:
-		return is_rolling or hit_invincibility_remaining > 0.0 or is_dead or is_safe
+		return is_rolling or hit_invincibility_remaining > 0.0 or is_dead or is_safe \
+				or damage_disabled
 
 
 func _ready() -> void:
 	_set_attack_active(false)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F1:
+		damage_disabled = not damage_disabled
+		print("Damage %s" % ("disabled" if damage_disabled else "enabled"))
 
 
 func _physics_process(delta: float) -> void:
@@ -132,6 +146,8 @@ func _physics_process(delta: float) -> void:
 		_try_use_potion()
 
 	_apply_gravity(delta)
+	if is_on_floor():
+		air_jump_used = false
 
 	if not is_rolling and not is_hurt and roll_just_pressed and is_on_floor() \
 		and spend_stamina(get_roll_stamina_cost()):
@@ -149,6 +165,10 @@ func _physics_process(delta: float) -> void:
 		if horizontal_input != 0:
 			animated_sprite.flip_h = horizontal_input < 0
 		if jump_just_pressed and is_on_floor():
+			velocity.y = JUMP_VELOCITY
+			_play_animation("jump")
+		elif jump_just_pressed and has_double_jump and not air_jump_used:
+			air_jump_used = true
 			velocity.y = JUMP_VELOCITY
 			_play_animation("jump")
 
@@ -246,6 +266,10 @@ func receive_pickup(kind: int, variant: int) -> bool:
 		ItemPickup.Kind.KEY:
 			key_count += 1
 			keys_changed.emit(key_count)
+		ItemPickup.Kind.DOUBLE_JUMP:
+			if has_double_jump:
+				return false
+			has_double_jump = true
 		_:
 			return false
 	return true

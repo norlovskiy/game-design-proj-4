@@ -3,11 +3,12 @@ extends Area2D
 ## An item lying in the world. The player takes it with the pickup key; if it
 ## has a price, that much gold is paid first.
 
-enum Kind { SWORD, STAFF, RING, RED_POTION, KEY }
+enum Kind { SWORD, STAFF, RING, RED_POTION, KEY, DOUBLE_JUMP }
 
 const ITEM_SHEET: Texture2D = preload("res://assets/player/items_noframe.png")
 const COIN_ICON: Texture2D = preload("res://assets/items/coin_large.png")
 const KEY_ICON: Texture2D = preload("res://assets/items/key.png")
+const ABILITY_ICON: Texture2D = preload("res://assets/items/ability.png")
 const CELL_SIZE := 44
 const HOVER_HEIGHT := 3.0
 const HOVER_SPEED := 0.8
@@ -28,6 +29,9 @@ const TEXT_SCALE := WorldTextBox.TEXT_SCALE
 @export var price := 0
 ## Fall straight down to the floor below when spawned.
 @export var drop_to_floor := false
+## Before falling, step this many pixels sideways if nothing is in the way,
+## so two things dropped in one spot don't land on top of each other.
+@export var side_step := 0.0
 
 var hover_time := 0.0
 
@@ -82,6 +86,8 @@ func collect(player: Node) -> bool:
 static func icon_for(item_kind: int, item_variant: int) -> Texture2D:
 	if item_kind == Kind.KEY:
 		return KEY_ICON
+	if item_kind == Kind.DOUBLE_JUMP:
+		return ABILITY_ICON
 	var column := 0
 	var row := 0
 	match item_kind:
@@ -113,6 +119,8 @@ static func display_name(item_kind: int, item_variant: int) -> String:
 			return "Red Potion"
 		Kind.KEY:
 			return "Rusted Key"
+		Kind.DOUBLE_JUMP:
+			return "Windstep Orb"
 	return "Item"
 
 
@@ -136,6 +144,8 @@ static func description(item_kind: int, item_variant: int) -> String:
 			return "Restores 1 health. Press H to drink."
 		Kind.KEY:
 			return "Opens a locked door somewhere in the castle."
+		Kind.DOUBLE_JUMP:
+			return "Press Space in mid-air to jump a second time."
 	return ""
 
 
@@ -149,8 +159,16 @@ func _is_targeted_by(player: Node) -> bool:
 
 
 func _settle_on_floor() -> void:
+	var space := get_world_2d().direct_space_state
+	for step: float in [side_step, -side_step]:
+		if step == 0.0:
+			break
+		var aside := global_position + Vector2(step, 0)
+		if space.intersect_ray(PhysicsRayQueryParameters2D.create(global_position, aside, 1)).is_empty():
+			global_position = aside
+			break
 	var query := PhysicsRayQueryParameters2D.create(global_position, global_position + Vector2(0, 600), 1)
-	var hit := get_world_2d().direct_space_state.intersect_ray(query)
+	var hit := space.intersect_ray(query)
 	if not hit.is_empty():
 		global_position = hit.position + Vector2(0, -REST_HEIGHT)
 

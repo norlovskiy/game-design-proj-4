@@ -14,9 +14,14 @@ const S := DungeonTileRule.Situation
 
 ## Emitted when a piece is revealed.
 signal explored_changed
+## Emitted when the player claims the treasure.
+signal treasure_claimed
 
 const FOG_SHADER := preload("res://shaders/dungeon_fog.gdshader")
 const GATE_SCENE: PackedScene = preload("res://scenes/dungeon_gate.tscn")
+const TREASURE_SCENE: PackedScene = preload("res://scenes/treasure.tscn")
+## How far above the floor the treasure floats, in pixels.
+const TREASURE_HEIGHT := 24.0
 ## How many cells past its doorway the player must be before the boss gate
 ## shuts behind them.
 const BOSS_GATE_DEPTH := 2
@@ -26,6 +31,8 @@ const BOSS_GATE_DEPTH := 2
 @export var spawn_table: DungeonSpawnTable
 ## Rooms where enemies can't target or hurt the tracked player.
 @export var safe_rooms: PackedStringArray = ["shop"]
+## The room the treasure is placed in. Empty for a dungeon with none.
+@export var treasure_room := "goal"
 ## Pickups to place after painting. Leave empty for a dungeon with none.
 @export var item_table: DungeonItemTable
 
@@ -40,6 +47,8 @@ var items: Node2D
 ## Door gates live under this node, drawn behind the bricks so a raised gate
 ## is hidden by the wall above its doorway.
 var gates: Node2D
+## The treasure, if the dungeon has one.
+var treasure: Treasure
 ## The boss, while it exists. Set by the spawner.
 var boss: Node2D
 ## The gate at the boss room's entrance, if there is a boss.
@@ -84,6 +93,7 @@ func build(map: MapGenerator.Result) -> void:
 	foreground = _add_layer("Foreground")
 	boss = null
 	boss_gate = null
+	treasure = null
 
 	for y in result.size.y:
 		for x in result.size.x:
@@ -109,6 +119,7 @@ func build(map: MapGenerator.Result) -> void:
 	add_child(items)
 	if item_table != null:
 		DungeonItemSpawner.populate(self, item_table, items)
+	_place_treasure()
 	_build_gates()
 	_build_fog()
 	explored.clear()
@@ -132,8 +143,23 @@ func _process(delta: float) -> void:
 			explore(index)
 		if "is_safe" in _tracked:
 			_tracked.is_safe = index >= 0 and result.pieces[index].name in safe_rooms
+		if "arena_rect" in _tracked:
+			var arena := Rect2()
+			if index >= 0 and spawn_table != null and result.pieces[index].name == spawn_table.boss_piece:
+				var piece: MapPiece = result.pieces[index]
+				arena = Rect2(to_global(Vector2(piece.pos) * cell_size()), Vector2(piece.size) * cell_size())
+			_tracked.arena_rect = arena
 	_update_boss_gate()
 	_advance_fades(delta)
+
+
+func _place_treasure() -> void:
+	if treasure_room == "" or floor_middle(treasure_room) == Vector2.ZERO:
+		return
+	treasure = TREASURE_SCENE.instantiate()
+	treasure.position = floor_middle(treasure_room) + Vector2(0, -TREASURE_HEIGHT)
+	treasure.claimed.connect(func() -> void: treasure_claimed.emit())
+	add_child(treasure)
 
 
 ## Puts a lowered, key-locked gate in every door that needs a key, and a
@@ -264,8 +290,14 @@ func cell_size() -> Vector2:
 
 ## Local position of the middle of the start room's floor.
 func spawn_position() -> Vector2:
+	return floor_middle("start")
+
+
+## Local position of the middle of the floor of the first piece with a name,
+## or zero if there is none.
+func floor_middle(piece_name: String) -> Vector2:
 	for piece: MapPiece in result.pieces:
-		if piece.name != "start":
+		if piece.name != piece_name:
 			continue
 		for y in range(piece.size.y - 1, -1, -1):
 			if piece.get_tile(piece.size.x / 2, y) == MapPiece.EMPTY:

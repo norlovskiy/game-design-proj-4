@@ -16,6 +16,7 @@ texture_filter = 1
 script = ExtResource("1_ranger")
 coin_drop = Vector2i(30, 45)
 potion_drop_chance = 1.0
+drops_double_jump = true
 max_health = 25
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

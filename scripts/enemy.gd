@@ -16,6 +16,8 @@ var movement_multiplier := 1.0
 ## Fewest and most coins dropped on death.
 @export var coin_drop := Vector2i(1, 3)
 @export_range(0.0, 1.0, 0.01) var potion_drop_chance := 0.05
+## Always drop the double jump ability on death. For the boss.
+@export var drops_double_jump := false
 
 @export_category("Health")
 @export_range(1, 100000, 1) var max_health: int = 1:
@@ -49,6 +51,13 @@ func _drop_loot() -> void:
 		potion.kind = ItemPickup.Kind.RED_POTION
 		potion.drop_to_floor = true
 		_add_drop(potion, origin)
+	if drops_double_jump:
+		var ability: ItemPickup = ITEM_PICKUP_SCENE.instantiate()
+		ability.kind = ItemPickup.Kind.DOUBLE_JUMP
+		ability.drop_to_floor = true
+		# Lands beside a potion dropped in the same spot, not on it.
+		ability.side_step = 30.0
+		_add_drop(ability, origin)
 
 
 func _add_drop(drop: Node2D, at: Vector2) -> void:
@@ -70,7 +79,11 @@ func find_player() -> Node2D:
 
 ## Whether a node is a player that enemies are allowed to go after.
 func can_target(node: Node) -> bool:
-	return node.is_in_group(&"player") and node.get("is_safe") != true
+	if not node.is_in_group(&"player") or node.get("is_safe") == true:
+		return false
+	# A player in the boss arena is out of bounds for everything outside it.
+	var arena = node.get("arena_rect")
+	return not (arena is Rect2 and arena.has_area() and not arena.has_point(global_position))
 
 
 func apply_frost(duration: float, slow_multiplier: float = 0.5) -> void:

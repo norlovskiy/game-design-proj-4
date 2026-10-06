@@ -47,13 +47,18 @@ func _check_drops() -> void:
 			await process_frame
 			var coins := 0
 			var dropped_potions := 0
+			var abilities := 0
 			for child in holder.get_children():
 				if child is CoinPickup:
 					coins += 1
+				elif child is ItemPickup and child.kind == ItemPickup.Kind.DOUBLE_JUMP:
+					abilities += 1
 				elif child is ItemPickup:
 					dropped_potions += 1
 					if child.kind != ItemPickup.Kind.RED_POTION or child.price != 0:
 						_fail("%s dropped an item that isn't a free potion" % path.get_file())
+			if abilities != (1 if enemy.drops_double_jump else 0):
+				_fail("%s dropped %d double jump abilities" % [path.get_file(), abilities])
 			if coins < allowed.x or coins > allowed.y:
 				_fail("%s dropped %d coins, expected %d-%d" % [path.get_file(), coins, allowed.x, allowed.y])
 			if dropped_potions > 1:
