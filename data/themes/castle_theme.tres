@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="DungeonTheme" format=3 uid="uid://g8gsl1bih7as"]
+[gd_resource type="Resource" script_class="DungeonTheme" format=3]
 
-[ext_resource type="Script" uid="uid://bac0ew0wtgkdq" path="res://scripts/dungeon/dungeon_decoration.gd" id="1_nylww"]
-[ext_resource type="Script" uid="uid://duxs8sc2rfdu7" path="res://scripts/dungeon/dungeon_theme.gd" id="2_wtvke"]
-[ext_resource type="Script" uid="uid://cac5dsug7lly7" path="res://scripts/dungeon/dungeon_tile_rule.gd" id="3_lykfm"]
-[ext_resource type="TileSet" uid="uid://cl18vt13dghk6" path="res://assets/tilesets/castle_tileset.tres" id="4_au2rg"]
+[ext_resource type="Script" path="res://scripts/dungeon/dungeon_decoration.gd" id="1_nylww"]
+[ext_resource type="Script" path="res://scripts/dungeon/dungeon_theme.gd" id="2_wtvke"]
+[ext_resource type="Script" path="res://scripts/dungeon/dungeon_tile_rule.gd" id="3_lykfm"]
+[ext_resource type="TileSet" path="res://assets/tilesets/castle_tileset.tres" id="4_au2rg"]
 
 [sub_resource type="Resource" id="Resource_3crh4"]
 script = ExtResource("1_nylww")
@@ -14,6 +14,8 @@ size_in_tiles = Vector2i(4, 6)
 anchor = 0
 chance = 0.04
 max_per_piece = 1
+pieces = PackedStringArray()
+excluded_pieces = PackedStringArray("shop")
 
 [sub_resource type="Resource" id="Resource_x8mm5"]
 script = ExtResource("1_nylww")
@@ -24,6 +26,8 @@ size_in_tiles = Vector2i(4, 6)
 anchor = 0
 chance = 0.04
 max_per_piece = 1
+pieces = PackedStringArray()
+excluded_pieces = PackedStringArray("shop")
 
 [sub_resource type="Resource" id="Resource_ct88c"]
 script = ExtResource("1_nylww")
@@ -34,6 +38,8 @@ size_in_tiles = Vector2i(4, 6)
 anchor = 0
 chance = 1.0
 max_per_piece = 1
+pieces = PackedStringArray()
+excluded_pieces = PackedStringArray("shop")
 
 [sub_resource type="Resource" id="Resource_3jr7x"]
 script = ExtResource("1_nylww")
@@ -41,6 +47,8 @@ name = "torch"
 source_id = 2
 atlas_coords = Vector2i(6, 18)
 chance = 0.04
+pieces = PackedStringArray()
+excluded_pieces = PackedStringArray("shop")
 
 [sub_resource type="Resource" id="Resource_el72j"]
 script = ExtResource("1_nylww")
@@ -48,6 +56,8 @@ name = "window_lit"
 source_id = 2
 atlas_coords = Vector2i(8, 16)
 chance = 0.012
+pieces = PackedStringArray()
+excluded_pieces = PackedStringArray("shop")
 
 [sub_resource type="Resource" id="Resource_vj13e"]
 script = ExtResource("1_nylww")
@@ -55,6 +65,8 @@ name = "window_dark"
 source_id = 2
 atlas_coords = Vector2i(6, 16)
 chance = 0.012
+pieces = PackedStringArray()
+excluded_pieces = PackedStringArray("shop")
 
 [sub_resource type="Resource" id="Resource_mh18r"]
 script = ExtResource("1_nylww")
@@ -66,6 +78,8 @@ anchor = 0
 chance = 0.5
 max_per_piece = 1
 door_clearance = 0
+pieces = PackedStringArray()
+excluded_pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_j3s4x"]
 script = ExtResource("1_nylww")
@@ -75,6 +89,8 @@ atlas_coords = Vector2i(2, 6)
 layer = 1
 anchor = 0
 chance = 0.06
+pieces = PackedStringArray()
+excluded_pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_rdgvi"]
 script = ExtResource("1_nylww")
@@ -85,61 +101,73 @@ layer = 1
 anchor = 0
 chance = 0.3
 max_per_piece = 1
+pieces = PackedStringArray()
+excluded_pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_g4hpq"]
 script = ExtResource("3_lykfm")
 atlas_coords = Vector2i(7, 2)
 pattern_size = Vector2i(2, 2)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_fis4a"]
 script = ExtResource("3_lykfm")
 situation = 2
 atlas_coords = Vector2i(7, 1)
 pattern_size = Vector2i(2, 1)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_5huoe"]
 script = ExtResource("3_lykfm")
 situation = 3
 atlas_coords = Vector2i(7, 6)
 pattern_size = Vector2i(2, 1)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_242qu"]
 script = ExtResource("3_lykfm")
 situation = 4
 atlas_coords = Vector2i(6, 2)
 pattern_size = Vector2i(1, 2)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_araa0"]
 script = ExtResource("3_lykfm")
 situation = 5
 atlas_coords = Vector2i(19, 2)
 pattern_size = Vector2i(1, 2)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_4hiap"]
 script = ExtResource("3_lykfm")
 situation = 6
 atlas_coords = Vector2i(6, 1)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_5dqdx"]
 script = ExtResource("3_lykfm")
 situation = 7
 atlas_coords = Vector2i(19, 1)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_q0yte"]
 script = ExtResource("3_lykfm")
 situation = 8
 atlas_coords = Vector2i(6, 6)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_dekrv"]
 script = ExtResource("3_lykfm")
 situation = 9
 atlas_coords = Vector2i(19, 6)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_a3cf1"]
 script = ExtResource("3_lykfm")
 situation = 10
 source_id = 1
 atlas_coords = Vector2i(22, 5)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_nc7ko"]
 script = ExtResource("3_lykfm")
@@ -147,12 +175,14 @@ situation = 11
 source_id = 1
 atlas_coords = Vector2i(23, 5)
 pattern_size = Vector2i(2, 1)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_t80sk"]
 script = ExtResource("3_lykfm")
 situation = 12
 source_id = 1
 atlas_coords = Vector2i(27, 5)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_gurdd"]
 script = ExtResource("3_lykfm")
@@ -160,39 +190,155 @@ situation = 0
 source_id = 2
 atlas_coords = Vector2i(9, 14)
 weight = 14.0
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_mmft8"]
 script = ExtResource("3_lykfm")
 situation = 0
 source_id = 2
 atlas_coords = Vector2i(7, 14)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_mxatd"]
 script = ExtResource("3_lykfm")
 situation = 0
 source_id = 2
 atlas_coords = Vector2i(8, 14)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_rydnh"]
 script = ExtResource("3_lykfm")
 situation = 0
 source_id = 2
 atlas_coords = Vector2i(6, 14)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_yd6m7"]
 script = ExtResource("3_lykfm")
 situation = 0
 source_id = 2
 atlas_coords = Vector2i(7, 15)
+pieces = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_rqwx8"]
 script = ExtResource("3_lykfm")
 situation = 0
 source_id = 2
 atlas_coords = Vector2i(8, 15)
+pieces = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_nylww"]
+script = ExtResource("3_lykfm")
+source_id = 3
+atlas_coords = Vector2i(3, 2)
+pattern_size = Vector2i(2, 2)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_wtvke"]
+script = ExtResource("3_lykfm")
+situation = 2
+source_id = 3
+atlas_coords = Vector2i(3, 1)
+pattern_size = Vector2i(2, 1)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_lykfm"]
+script = ExtResource("3_lykfm")
+situation = 3
+source_id = 3
+atlas_coords = Vector2i(3, 6)
+pattern_size = Vector2i(2, 1)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_au2rg"]
+script = ExtResource("3_lykfm")
+situation = 4
+source_id = 3
+atlas_coords = Vector2i(2, 2)
+pattern_size = Vector2i(1, 2)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_lgd7k"]
+script = ExtResource("3_lykfm")
+situation = 5
+source_id = 3
+atlas_coords = Vector2i(15, 2)
+pattern_size = Vector2i(1, 2)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_8arg2"]
+script = ExtResource("3_lykfm")
+situation = 6
+source_id = 3
+atlas_coords = Vector2i(2, 1)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_4bg38"]
+script = ExtResource("3_lykfm")
+situation = 7
+source_id = 3
+atlas_coords = Vector2i(15, 1)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_2bqku"]
+script = ExtResource("3_lykfm")
+situation = 8
+source_id = 3
+atlas_coords = Vector2i(2, 6)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_86nvv"]
+script = ExtResource("3_lykfm")
+situation = 9
+source_id = 3
+atlas_coords = Vector2i(15, 6)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_5rgr0"]
+script = ExtResource("3_lykfm")
+situation = 0
+source_id = 4
+atlas_coords = Vector2i(5, 14)
+weight = 14.0
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_t43ek"]
+script = ExtResource("3_lykfm")
+situation = 0
+source_id = 4
+atlas_coords = Vector2i(6, 14)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_2gdgm"]
+script = ExtResource("3_lykfm")
+situation = 0
+source_id = 4
+atlas_coords = Vector2i(8, 14)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_vffho"]
+script = ExtResource("3_lykfm")
+situation = 0
+source_id = 4
+atlas_coords = Vector2i(9, 14)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_toijy"]
+script = ExtResource("3_lykfm")
+situation = 0
+source_id = 4
+atlas_coords = Vector2i(6, 15)
+pieces = PackedStringArray("shop")
+
+[sub_resource type="Resource" id="Resource_akmlx"]
+script = ExtResource("3_lykfm")
+situation = 0
+source_id = 4
+atlas_coords = Vector2i(9, 15)
+pieces = PackedStringArray("shop")
 
 [resource]
 script = ExtResource("2_wtvke")
 tile_set = ExtResource("4_au2rg")
-tile_rules = Array[ExtResource("3_lykfm")]([SubResource("Resource_g4hpq"), SubResource("Resource_fis4a"), SubResource("Resource_5huoe"), SubResource("Resource_242qu"), SubResource("Resource_araa0"), SubResource("Resource_4hiap"), SubResource("Resource_5dqdx"), SubResource("Resource_q0yte"), SubResource("Resource_dekrv"), SubResource("Resource_a3cf1"), SubResource("Resource_nc7ko"), SubResource("Resource_t80sk"), SubResource("Resource_gurdd"), SubResource("Resource_mmft8"), SubResource("Resource_mxatd"), SubResource("Resource_rydnh"), SubResource("Resource_yd6m7"), SubResource("Resource_rqwx8")])
+tile_rules = Array[ExtResource("3_lykfm")]([SubResource("Resource_g4hpq"), SubResource("Resource_fis4a"), SubResource("Resource_5huoe"), SubResource("Resource_242qu"), SubResource("Resource_araa0"), SubResource("Resource_4hiap"), SubResource("Resource_5dqdx"), SubResource("Resource_q0yte"), SubResource("Resource_dekrv"), SubResource("Resource_a3cf1"), SubResource("Resource_nc7ko"), SubResource("Resource_t80sk"), SubResource("Resource_gurdd"), SubResource("Resource_mmft8"), SubResource("Resource_mxatd"), SubResource("Resource_rydnh"), SubResource("Resource_yd6m7"), SubResource("Resource_rqwx8"), SubResource("Resource_nylww"), SubResource("Resource_wtvke"), SubResource("Resource_lykfm"), SubResource("Resource_au2rg"), SubResource("Resource_lgd7k"), SubResource("Resource_8arg2"), SubResource("Resource_4bg38"), SubResource("Resource_2bqku"), SubResource("Resource_86nvv"), SubResource("Resource_5rgr0"), SubResource("Resource_t43ek"), SubResource("Resource_2gdgm"), SubResource("Resource_vffho"), SubResource("Resource_toijy"), SubResource("Resource_akmlx")])
 decorations = Array[ExtResource("1_nylww")]([SubResource("Resource_3crh4"), SubResource("Resource_x8mm5"), SubResource("Resource_ct88c"), SubResource("Resource_3jr7x"), SubResource("Resource_el72j"), SubResource("Resource_vj13e"), SubResource("Resource_mh18r"), SubResource("Resource_j3s4x"), SubResource("Resource_rdgvi")])

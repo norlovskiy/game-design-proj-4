@@ -33,3 +33,5 @@ enum Layer {
 @export var door_clearance := 1
 ## Piece names this may appear in. Empty means everywhere.
 @export var pieces: PackedStringArray = []
+## Piece names this never appears in, even when `pieces` is empty.
+@export var excluded_pieces: PackedStringArray = []

@@ -1,0 +1,31 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/coin_pickup.gd" id="1_coin"]
+[ext_resource type="Texture2D" path="res://assets/items/coin_large.png" id="2_sprite"]
+
+[sub_resource type="CircleShape2D" id="BodyShape"]
+radius = 5.0
+
+[sub_resource type="CircleShape2D" id="CollectShape"]
+radius = 11.0
+
+[node name="Coin" type="CharacterBody2D"]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_coin")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -3)
+texture = ExtResource("2_sprite")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("BodyShape")
+
+[node name="CollectArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 8
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollectArea"]
+shape = SubResource("CollectShape")

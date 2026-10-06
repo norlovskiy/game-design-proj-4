@@ -2,8 +2,10 @@ class_name DungeonItemSpawner
 extends RefCounted
 ## Places pickups from a DungeonItemTable in the rooms its pools name.
 ##
-## Items are spread along each room's floor. The same map seed and table
-## always place the same items in the same rooms.
+## Items are spread along each room's floor. Pools are handled in table
+## order, so a pool that skips already-placed items (a shop) should come
+## after the pools that give items away. The same map seed and table always
+## place the same items in the same rooms.
 
 const MapPiece := preload("res://scripts/mapgen/map_piece.gd")
 
@@ -16,24 +18,34 @@ static func populate(dungeon: Dungeon, table: DungeonItemTable, parent: Node2D) 
 	# Offset from the map seed so item rolls don't mirror the enemy rolls.
 	rng.seed = map.map_seed + 7919
 	var spawned: Array[ItemPickup] = []
-	# Entries each pool can still hand out before it repeats.
-	var remaining := {}
-	for piece: MapPiece in map.pieces:
-		var pool := _pool_for(table, piece.name)
-		if pool == null or pool.entries.is_empty():
-			continue
-		var cells := _floor_cells(map, piece)
-		for i in mini(pool.items_per_room, cells.size()):
-			var entry := _draw(pool, remaining, rng)
-			# Evenly spaced along the floor: one item sits in the middle.
-			var cell := cells[(i + 1) * cells.size() / (pool.items_per_room + 1)]
-			var pickup: ItemPickup = table.pickup_scene.instantiate()
-			# Set before entering the tree: the pickup picks its icon in _ready.
-			pickup.kind = entry.kind
-			pickup.variant = entry.variant
-			pickup.position = (Vector2(cell) + Vector2(0.5, 1.0)) * dungeon.cell_size() + pool.offset
-			parent.add_child(pickup)
-			spawned.append(pickup)
+	# [kind, variant] of everything placed so far.
+	var placed := {}
+	for pool in table.pools:
+		# Entries this pool can still hand out before it repeats.
+		var remaining: Array = pool.entries.duplicate()
+		for piece: MapPiece in map.pieces:
+			if _pool_for(table, piece.name) != pool:
+				continue
+			var cells := _floor_cells(map, piece)
+			var count := mini(pool.items_per_room, cells.size())
+			for i in count:
+				if remaining.is_empty() and not pool.allow_repeats:
+					remaining = pool.entries.duplicate()
+				var entry := _draw(pool, remaining, placed, rng)
+				if entry == null:
+					break
+				placed[[entry.kind, entry.variant]] = true
+				# Evenly spaced along the floor: one item sits in the middle.
+				var cell := cells[int((i + 0.5) * cells.size() / count)]
+				var pickup: ItemPickup = table.pickup_scene.instantiate()
+				# Set before entering the tree: the pickup reads these in _ready.
+				pickup.kind = entry.kind
+				pickup.variant = entry.variant
+				if pool.for_sale:
+					pickup.price = entry.price
+				pickup.position = (Vector2(cell) + Vector2(0.5, 1.0)) * dungeon.cell_size() + pool.offset
+				parent.add_child(pickup)
+				spawned.append(pickup)
 	return spawned
 
 
@@ -44,25 +56,27 @@ static func _pool_for(table: DungeonItemTable, room_name: String) -> DungeonItem
 	return null
 
 
-## Picks an entry by weight, without repeats unless the pool allows them.
-static func _draw(pool: DungeonItemPool, remaining: Dictionary, rng: RandomNumberGenerator) -> DungeonItemEntry:
-	var options: Array = pool.entries
-	if not pool.allow_repeats:
-		if not remaining.has(pool) or remaining[pool].is_empty():
-			remaining[pool] = pool.entries.duplicate()
-		options = remaining[pool]
+## Picks an entry by weight and, unless the pool allows repeats, takes it out
+## of `remaining`. Returns null when the pool has nothing left it may place.
+static func _draw(pool: DungeonItemPool, remaining: Array, placed: Dictionary,
+		rng: RandomNumberGenerator) -> DungeonItemEntry:
+	var options: Array[DungeonItemEntry] = []
 	var total := 0.0
-	for entry: DungeonItemEntry in options:
+	for entry: DungeonItemEntry in (pool.entries if pool.allow_repeats else remaining):
+		if pool.skip_placed and placed.has([entry.kind, entry.variant]):
+			continue
+		options.append(entry)
 		total += entry.weight
+	if options.is_empty():
+		return null
 	var roll := rng.randf() * total
 	var picked: DungeonItemEntry = options.back()
-	for entry: DungeonItemEntry in options:
+	for entry in options:
 		roll -= entry.weight
 		if roll < 0.0:
 			picked = entry
 			break
-	if not pool.allow_repeats:
-		options.erase(picked)
+	remaining.erase(picked)
 	return picked
 
 

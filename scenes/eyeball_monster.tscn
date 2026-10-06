@@ -1,7 +1,7 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://djpmma0wjxx45"]
 
-[ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="1_enemy"]
-[ext_resource type="Script" path="res://scripts/eyeball_monster.gd" id="2_eyeball"]
+[ext_resource type="PackedScene" uid="uid://d14alafdoekcn" path="res://scenes/enemy.tscn" id="1_enemy"]
+[ext_resource type="Script" uid="uid://bu0ckqk726frh" path="res://scripts/eyeball_monster.gd" id="2_eyeball"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 9.0
@@ -9,24 +9,40 @@ radius = 9.0
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
 size = Vector2(106, 24)
 
-[node name="EyeballMonster" instance=ExtResource("1_enemy")]
+[node name="EyeballMonster" unique_id=1319147166 instance=ExtResource("1_enemy")]
 floor_snap_length = 4.0
 script = ExtResource("2_eyeball")
-max_health = 1
+coin_drop = Vector2i(1, 3)
+potion_drop_chance = 0.05
+patrol_radius = 90.0
+patrol_speed = 90.0
+chase_speed = 150.0
+acceleration = 650.0
+detection_range = 280.0
+vertical_detection_range = 65.0
+charge_range = 190.0
+windup_duration = 0.4
+roll_speed = 340.0
+roll_duration = 0.6
+roll_pass_grace = 0.05
+missed_stagger_duration = 0.75
+attack_cooldown = 0.9
+resisted_hits_after_hurt = 2
+repeat_hurt_speed = 2.0
 
 [node name="Hitbox" parent="." index="0"]
 position = Vector2(0, -12)
 shape = SubResource("CircleShape2D_body")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." index="1"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." index="1" unique_id=479680403]
 texture_filter = 1
 position = Vector2(0, -12)
 
-[node name="AttackArea" type="Area2D" parent="." index="2"]
+[node name="AttackArea" type="Area2D" parent="." index="2" unique_id=1970376485]
 position = Vector2(53, -12)
 collision_layer = 0
 collision_mask = 8
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea" index="0" unique_id=927982798]
 shape = SubResource("RectangleShape2D_attack")
 disabled = true

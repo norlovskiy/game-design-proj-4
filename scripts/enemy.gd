@@ -3,6 +3,8 @@ extends CharacterBody2D
 
 const HIT_FLASH_SHADER: Shader = preload("res://shaders/hit_flash.gdshader")
 const HIT_FLASH_DURATION := 0.15
+const COIN_SCENE: PackedScene = preload("res://scenes/coin.tscn")
+const ITEM_PICKUP_SCENE: PackedScene = preload("res://scenes/item_pickup.tscn")
 
 var health: int = 1
 var _flash_material: ShaderMaterial
@@ -10,6 +12,12 @@ var _flash_tween: Tween
 var frost_remaining := 0.0
 var movement_multiplier := 1.0
 
+@export_category("Drops")
+## Fewest and most coins dropped on death.
+@export var coin_drop := Vector2i(1, 3)
+@export_range(0.0, 1.0, 0.01) var potion_drop_chance := 0.05
+
+@export_category("Health")
 @export_range(1, 100000, 1) var max_health: int = 1:
 	set(value):
 		max_health = maxi(value, 1)
@@ -25,7 +33,33 @@ func take_damage(amount: int) -> void:
 	health = maxi(health - amount, 0)
 	if health == 0:
 		_clear_frost()
+		_drop_loot()
 	_flash_white()
+
+
+## Scatters coins, and sometimes a health potion, where the enemy died.
+func _drop_loot() -> void:
+	var origin := global_position + Vector2(0, -12)
+	for i in randi_range(coin_drop.x, coin_drop.y):
+		var coin: CoinPickup = COIN_SCENE.instantiate()
+		coin.velocity = Vector2(randf_range(-90.0, 90.0), randf_range(-260.0, -140.0))
+		_add_drop(coin, origin)
+	if randf() < potion_drop_chance:
+		var potion: ItemPickup = ITEM_PICKUP_SCENE.instantiate()
+		potion.kind = ItemPickup.Kind.RED_POTION
+		potion.drop_to_floor = true
+		_add_drop(potion, origin)
+
+
+func _add_drop(drop: Node2D, at: Vector2) -> void:
+	var parent := get_parent()
+	if parent == null:
+		drop.free()
+		return
+	drop.position = (parent as Node2D).to_local(at) if parent is Node2D else at
+	# Deferred: death can happen inside a physics callback, where bodies and
+	# areas can't be added.
+	parent.add_child.call_deferred(drop)
 
 
 func apply_frost(duration: float, slow_multiplier: float = 0.5) -> void:

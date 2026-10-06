@@ -19,6 +19,7 @@ func _init() -> void:
 	dungeon.item_table = table
 	root.add_child(dungeon)
 	var total := 0
+	var for_sale := 0
 	var seen := {}
 	for i in SEEDS:
 		_seed = i * 523
@@ -31,13 +32,16 @@ func _init() -> void:
 
 		var per_room := {}
 		var handed_out := {}
+		# Free pools come first in the table, so their pickups are seen first.
+		var free_items := {}
 		for pickup: ItemPickup in dungeon.items.get_children():
 			var cell := Vector2i((pickup.position / dungeon.cell_size()).floor())
 			var owner := map.get_owner(cell.x, cell.y)
 			if owner < 0 or map.get_tile(cell.x, cell.y) != MapPiece.EMPTY:
 				_fail("item outside open space at %s" % cell)
 				continue
-			if map.get_tile(cell.x, cell.y + 1) != MapPiece.SOLID:
+			# Shop items float a cell higher than free ones.
+			if map.get_tile(cell.x, cell.y + 1) != MapPiece.SOLID and map.get_tile(cell.x, cell.y + 2) != MapPiece.SOLID:
 				_fail("item at %s has no floor under it" % cell)
 			per_room[owner] = per_room.get(owner, 0) + 1
 			var item := [pickup.kind, pickup.variant]
@@ -48,6 +52,16 @@ func _init() -> void:
 				continue
 			if not _in_pool(pool, pickup):
 				_fail("item %s is not in the pool for %s" % [item, map.pieces[owner].name])
+			if pool.for_sale:
+				for_sale += 1
+				if pickup.price != _price_in(pool, pickup):
+					_fail("item %s is priced %d" % [item, pickup.price])
+				if pool.skip_placed and free_items.has(item):
+					_fail("shop sells %s, which also spawned for free" % [item])
+			else:
+				free_items[item] = true
+				if pickup.price != 0:
+					_fail("free item %s has a price" % [item])
 			if not pool.allow_repeats and handed_out.has(item) and handed_out.size() < pool.entries.size():
 				_fail("item %s repeated before the pool ran out" % [item])
 			handed_out[item] = true
@@ -61,8 +75,8 @@ func _init() -> void:
 		if _snapshot(dungeon) != first:
 			_fail("same seed placed different items")
 
-	print("%d seeds, %d failures, %.1f items per dungeon, %d distinct items seen" % [
-		SEEDS, _failures, float(total) / SEEDS, seen.size()])
+	print("%d seeds, %d failures, %.1f items per dungeon (%.1f for sale), %d distinct items seen" % [
+		SEEDS, _failures, float(total) / SEEDS, float(for_sale) / SEEDS, seen.size()])
 	quit(1 if _failures > 0 else 0)
 
 
@@ -80,10 +94,17 @@ func _in_pool(pool: DungeonItemPool, pickup: ItemPickup) -> bool:
 	return false
 
 
+func _price_in(pool: DungeonItemPool, pickup: ItemPickup) -> int:
+	for entry in pool.entries:
+		if entry.kind == pickup.kind and entry.variant == pickup.variant:
+			return entry.price
+	return -1
+
+
 func _snapshot(dungeon: Dungeon) -> Array:
 	var out := []
 	for pickup: ItemPickup in dungeon.items.get_children():
-		out.append([pickup.kind, pickup.variant, pickup.position])
+		out.append([pickup.kind, pickup.variant, pickup.price, pickup.position])
 	return out
 
 

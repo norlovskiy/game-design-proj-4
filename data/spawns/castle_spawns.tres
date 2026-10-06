@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://emhq76idv85" path="res://scripts/dungeon/dungeon_spawn_table.gd" id="1_table"]
 [ext_resource type="Script" uid="uid://cq6kidmtvo27" path="res://scripts/dungeon/dungeon_spawn_rule.gd" id="2_rule"]
 [ext_resource type="PackedScene" path="res://scenes/nightborne.tscn" id="3_nightborne"]
-[ext_resource type="PackedScene" path="res://scenes/eyeball_monster.tscn" id="4_eyeball"]
+[ext_resource type="PackedScene" uid="uid://djpmma0wjxx45" path="res://scenes/eyeball_monster.tscn" id="4_eyeball"]
 [ext_resource type="PackedScene" path="res://scenes/flying_demon.tscn" id="5_demon"]
 [ext_resource type="PackedScene" uid="uid://bremrr0kny7i" path="res://scenes/bringer_of_death.tscn" id="6_bringer"]
 [ext_resource type="PackedScene" path="res://scenes/leaf_ranger.tscn" id="7_leaf_ranger"]

@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="DungeonItemTable" format=3]
+[gd_resource type="Resource" script_class="DungeonItemTable" format=3 uid="uid://bdwhseyj8g7uo"]
 
-[ext_resource type="Script" path="res://scripts/dungeon/dungeon_item_table.gd" id="1_table"]
-[ext_resource type="Script" path="res://scripts/dungeon/dungeon_item_pool.gd" id="2_pool"]
-[ext_resource type="Script" path="res://scripts/dungeon/dungeon_item_entry.gd" id="3_entry"]
+[ext_resource type="Script" uid="uid://bmnha6cikkec0" path="res://scripts/dungeon/dungeon_item_table.gd" id="1_table"]
+[ext_resource type="Script" uid="uid://cjlrms65nhjle" path="res://scripts/dungeon/dungeon_item_pool.gd" id="2_pool"]
+[ext_resource type="Script" uid="uid://rs1gcw08h2me" path="res://scripts/dungeon/dungeon_item_entry.gd" id="3_entry"]
 [ext_resource type="PackedScene" path="res://scenes/item_pickup.tscn" id="4_pickup"]
 
 [sub_resource type="Resource" id="Entry_sword"]
@@ -10,34 +10,41 @@ script = ExtResource("3_entry")
 
 [sub_resource type="Resource" id="Entry_staff_0"]
 script = ExtResource("3_entry")
+price = 40
 kind = 1
 
 [sub_resource type="Resource" id="Entry_staff_1"]
 script = ExtResource("3_entry")
+price = 40
 kind = 1
 variant = 1
 
 [sub_resource type="Resource" id="Entry_staff_2"]
 script = ExtResource("3_entry")
+price = 40
 kind = 1
 variant = 2
 
 [sub_resource type="Resource" id="Entry_ring_0"]
 script = ExtResource("3_entry")
+price = 35
 kind = 2
 
 [sub_resource type="Resource" id="Entry_ring_1"]
 script = ExtResource("3_entry")
+price = 35
 kind = 2
 variant = 1
 
 [sub_resource type="Resource" id="Entry_ring_2"]
 script = ExtResource("3_entry")
+price = 35
 kind = 2
 variant = 2
 
 [sub_resource type="Resource" id="Entry_red_potion"]
 script = ExtResource("3_entry")
+price = 15
 kind = 3
 weight = 2.0
 
@@ -45,7 +52,15 @@ weight = 2.0
 script = ExtResource("2_pool")
 entries = Array[ExtResource("3_entry")]([SubResource("Entry_sword"), SubResource("Entry_staff_0"), SubResource("Entry_staff_1"), SubResource("Entry_staff_2"), SubResource("Entry_ring_0"), SubResource("Entry_ring_1"), SubResource("Entry_ring_2"), SubResource("Entry_red_potion")])
 
+[sub_resource type="Resource" id="Pool_shop"]
+script = ExtResource("2_pool")
+rooms = PackedStringArray("shop")
+entries = Array[ExtResource("3_entry")]([SubResource("Entry_sword"), SubResource("Entry_staff_0"), SubResource("Entry_staff_1"), SubResource("Entry_staff_2"), SubResource("Entry_ring_0"), SubResource("Entry_ring_1"), SubResource("Entry_ring_2"), SubResource("Entry_red_potion")])
+items_per_room = 3
+offset = Vector2(0, -34)
+for_sale = true
+skip_placed = true
+
 [resource]
 script = ExtResource("1_table")
-pickup_scene = ExtResource("4_pickup")
-pools = Array[ExtResource("2_pool")]([SubResource("Pool_item_rooms")])
+pools = Array[ExtResource("2_pool")]([SubResource("Pool_item_rooms"), SubResource("Pool_shop")])

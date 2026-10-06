@@ -4,6 +4,7 @@ extends CanvasLayer
 @onready var stamina_bar: TextureProgressBar = $Layout/StaminaBar
 @onready var mana_bar: TextureProgressBar = $Layout/ManaBar
 @onready var potion_count_label: Label = $Layout/PotionCounter/Count
+@onready var gold_count_label: Label = $Layout/GoldCounter/Count
 @onready var item_slots: Array[TextureRect] = [
 	$Layout/ItemFrames/ItemSlot1,
 	$Layout/ItemFrames/ItemSlot2,
@@ -23,7 +24,9 @@ func _ready() -> void:
 	player.equipment_changed.connect(_on_equipment_changed)
 	player.potions_changed.connect(_on_potions_changed)
 	_on_resources_changed(player.hp, player.stamina, player.mana)
+	player.gold_changed.connect(_on_gold_changed)
 	_on_potions_changed(player.potion_count)
+	_on_gold_changed(player.gold)
 	for slot in item_slots.size():
 		_on_equipment_changed(slot, player.get_equipped_icon(slot))
 
@@ -43,3 +46,7 @@ func _on_equipment_changed(slot: int, icon: Texture2D) -> void:
 
 func _on_potions_changed(count: int) -> void:
 	potion_count_label.text = "×%d" % count
+
+
+func _on_gold_changed(amount: int) -> void:
+	gold_count_label.text = "%d" % amount

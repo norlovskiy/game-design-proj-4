@@ -8,6 +8,8 @@ size = Vector2(30, 36)
 
 [node name="FlyingDemon" instance=ExtResource("1_enemy")]
 script = ExtResource("2_demon")
+coin_drop = Vector2i(2, 5)
+potion_drop_chance = 0.08
 max_health = 4
 
 [node name="Hitbox" parent="." index="0"]

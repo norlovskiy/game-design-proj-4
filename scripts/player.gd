@@ -4,6 +4,7 @@ signal lives_changed(lives_remaining: int)
 signal resources_changed(hp: int, stamina: float, mana: float)
 signal equipment_changed(slot: int, icon: Texture2D)
 signal potions_changed(count: int)
+signal gold_changed(amount: int)
 signal died
 
 const MOVE_SPEED := 200.0
@@ -48,6 +49,7 @@ var has_sword := false
 var staff_variant := -1
 var ring_variant := -1
 var potion_count := 0
+var gold := 0
 var health_regen_elapsed := 0.0
 var roll_direction := 1
 var jump_was_pressed := false
@@ -261,7 +263,23 @@ func get_equipped_icon(slot: int) -> Texture2D:
 	return null
 
 
-func _try_pickup() -> void:
+func add_gold(amount: int) -> void:
+	if amount <= 0:
+		return
+	gold += amount
+	gold_changed.emit(gold)
+
+
+func spend_gold(amount: int) -> bool:
+	if amount > gold:
+		return false
+	gold -= amount
+	gold_changed.emit(gold)
+	return true
+
+
+## The pickup in reach that the pickup key would take: the closest one.
+func get_pickup_target() -> ItemPickup:
 	var closest: ItemPickup
 	var closest_distance := INF
 	for area in pickup_area.get_overlapping_areas():
@@ -271,8 +289,13 @@ func _try_pickup() -> void:
 		if distance < closest_distance:
 			closest = area as ItemPickup
 			closest_distance = distance
-	if closest != null:
-		closest.collect(self)
+	return closest
+
+
+func _try_pickup() -> void:
+	var target := get_pickup_target()
+	if target != null:
+		target.collect(self)
 
 
 func _try_cast_staff(horizontal_input: int = 0) -> void:

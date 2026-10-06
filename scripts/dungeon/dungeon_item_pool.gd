@@ -12,3 +12,8 @@ extends Resource
 ## Added to the spawn point, in pixels. Items spawn at the middle of a floor
 ## cell's surface; the default lifts them to hover above it.
 @export var offset := Vector2(0, -18)
+## Sell the items for each entry's price instead of giving them away.
+@export var for_sale := false
+## Leave out items that pools earlier in the table have already placed in
+## this dungeon, so a shop only stocks what the player won't find for free.
+@export var skip_placed := false

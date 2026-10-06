@@ -344,6 +344,8 @@ func _decoration_fits(decoration: DungeonDecoration, spot: Rect2i, owner: int) -
 	var piece: MapPiece = result.pieces[owner]
 	if not decoration.pieces.is_empty() and not piece.name in decoration.pieces:
 		return false
+	if piece.name in decoration.excluded_pieces:
+		return false
 	for y in range(spot.position.y, spot.end.y):
 		for x in range(spot.position.x, spot.end.x):
 			if result.get_owner(x, y) != owner or result.get_tile(x, y) != MapPiece.EMPTY:
