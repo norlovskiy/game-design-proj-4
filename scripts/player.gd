@@ -1,6 +1,7 @@
 extends CharacterBody2D
 
 signal lives_changed(lives_remaining: int)
+signal resources_changed(hp: int, stamina: float, mana: float)
 signal died
 
 const MOVE_SPEED := 200.0
@@ -13,13 +14,22 @@ const COMBO_WINDOW_DURATION := 0.35
 const ATTACK_ACTIVE_FRAMES := [1, 2]
 const ATTACK_REACH := 24.0
 
-@export_range(1, 10) var max_lives := 3
+@export_range(1, 10) var max_hp := 3
+@export_range(1.0, 200.0, 1.0) var max_stamina := 100.0
+@export_range(0.0, 100.0, 1.0) var roll_stamina_cost := 25.0
+@export var stamina_regen_rate := 20.0
+@export var stamina_regen_delay := 0.75
+@export_range(1.0, 200.0, 1.0) var max_mana := 100.0
+@export var mana_regen_rate := 10.0
+@export var mana_regen_delay := 0.5
 @export_range(1, 100) var base_attack_damage := 1
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var attack_hitbox: Area2D = $AttackHitbox
 @onready var attack_shape: CollisionShape2D = $AttackHitbox/CollisionShape2D
-@onready var lives_remaining := max_lives
+@onready var hp := max_hp
+@onready var stamina := max_stamina
+@onready var mana := max_mana
 
 var is_rolling := false
 var is_attacking := false
@@ -37,6 +47,14 @@ var hit_targets: Array[int] = []
 var hit_recovery_remaining := 0.0
 var hit_flash_remaining := 0.0
 var hit_invincibility_remaining := 0.0
+var stamina_regen_wait := 0.0
+var mana_regen_wait := 0.0
+var max_lives: int:
+	get:
+		return max_hp
+var lives_remaining: int:
+	get:
+		return hp
 var is_invincible: bool:
 	get:
 		return is_rolling or hit_invincibility_remaining > 0.0 or is_dead
@@ -48,6 +66,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_advance_hit_state(delta)
+	_advance_resources(delta)
 	if combo_window_remaining > 0.0:
 		combo_window_remaining = maxf(0.0, combo_window_remaining - delta)
 	if is_dead:
@@ -78,7 +97,7 @@ func _physics_process(delta: float) -> void:
 	if not is_rolling and not is_hurt and not is_attacking:
 		if horizontal_input != 0:
 			animated_sprite.flip_h = horizontal_input < 0
-		if roll_just_pressed and is_on_floor():
+		if roll_just_pressed and is_on_floor() and spend_stamina(roll_stamina_cost):
 			_start_roll(horizontal_input)
 		elif jump_just_pressed and is_on_floor():
 			velocity.y = JUMP_VELOCITY
@@ -112,8 +131,56 @@ func _advance_hit_state(delta: float) -> void:
 		hit_recovery_remaining = maxf(0.0, hit_recovery_remaining - delta)
 		if hit_recovery_remaining == 0.0:
 			is_hurt = false
-			if lives_remaining == 0:
+			if hp == 0:
 				_die()
+
+
+func _advance_resources(delta: float) -> void:
+	if is_dead:
+		return
+	var changed := false
+	if stamina_regen_wait > 0.0:
+		stamina_regen_wait = maxf(0.0, stamina_regen_wait - delta)
+	elif stamina < max_stamina:
+		stamina = minf(max_stamina, stamina + stamina_regen_rate * delta)
+		changed = true
+	if mana_regen_wait > 0.0:
+		mana_regen_wait = maxf(0.0, mana_regen_wait - delta)
+	elif mana < max_mana:
+		mana = minf(max_mana, mana + mana_regen_rate * delta)
+		changed = true
+	if changed:
+		_emit_resources_changed()
+
+
+func _emit_resources_changed() -> void:
+	resources_changed.emit(hp, stamina, mana)
+
+
+func spend_stamina(amount: float) -> bool:
+	if is_dead or amount < 0.0 or stamina < amount:
+		return false
+	stamina = maxf(0.0, stamina - amount)
+	stamina_regen_wait = stamina_regen_delay
+	_emit_resources_changed()
+	return true
+
+
+func spend_mana(amount: float) -> bool:
+	if is_dead or amount < 0.0 or mana < amount:
+		return false
+	mana = maxf(0.0, mana - amount)
+	mana_regen_wait = mana_regen_delay
+	_emit_resources_changed()
+	return true
+
+
+func restore_hp(amount: int) -> void:
+	if is_dead or amount <= 0:
+		return
+	hp = mini(max_hp, hp + amount)
+	lives_changed.emit(hp)
+	_emit_resources_changed()
 
 
 func _start_roll(horizontal_input: int) -> void:
@@ -226,14 +293,15 @@ func take_hit() -> bool:
 	if not can_take_damage():
 		return false
 	_cancel_attack()
-	lives_remaining -= 1
+	hp -= 1
 	is_hurt = true
 	hit_recovery_remaining = HIT_RECOVERY_DURATION
 	hit_flash_remaining = HIT_FLASH_DURATION
 	hit_invincibility_remaining = HIT_INVINCIBILITY_DURATION
 	animated_sprite.modulate = Color(1.0, 0.25, 0.25)
 	_play_animation("hit")
-	lives_changed.emit(lives_remaining)
+	lives_changed.emit(hp)
+	_emit_resources_changed()
 	return true
 
 
