@@ -52,6 +52,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	advance_status(delta)
 	_cooldown_remaining = maxf(_cooldown_remaining - delta, 0.0)
 
 	if not is_on_floor():
@@ -108,7 +109,7 @@ func _update_movement(delta: float) -> void:
 			_set_state(State.IDLE)
 		return
 
-	velocity.x = move_toward(velocity.x, _facing * run_speed, acceleration * delta)
+	velocity.x = move_toward(velocity.x, _facing * run_speed * movement_multiplier, acceleration * delta)
 	_set_state(State.RUN)
 
 
