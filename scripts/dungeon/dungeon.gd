@@ -20,6 +20,8 @@ const FOG_SHADER := preload("res://shaders/dungeon_fog.gdshader")
 @export var theme: DungeonTheme
 ## Enemies to spawn after painting. Leave empty for a dungeon with none.
 @export var spawn_table: DungeonSpawnTable
+## Rooms where enemies can't target or hurt the tracked player.
+@export var safe_rooms: PackedStringArray = ["shop"]
 ## Pickups to place after painting. Leave empty for a dungeon with none.
 @export var item_table: DungeonItemTable
 
@@ -99,7 +101,7 @@ func build(map: MapGenerator.Result) -> void:
 			explore(piece.index, true)
 
 
-## Reveals pieces as `body` walks into them.
+## Reveals pieces as `body` walks into them, and keeps it safe in safe rooms.
 func track(body: Node2D) -> void:
 	_tracked = body
 
@@ -111,6 +113,8 @@ func _process(delta: float) -> void:
 		var index := piece_at(to_local(_tracked.global_position))
 		if index >= 0 and not explored.has(index):
 			explore(index)
+		if "is_safe" in _tracked:
+			_tracked.is_safe = index >= 0 and result.pieces[index].name in safe_rooms
 	_advance_fades(delta)
 
 

@@ -79,7 +79,7 @@ func take_damage(amount: int) -> void:
 
 
 func _update_movement(delta: float) -> void:
-	if not is_instance_valid(_target) or not _target.is_in_group(&"player"):
+	if not is_instance_valid(_target) or not can_target(_target):
 		_find_target()
 
 	if not is_instance_valid(_target):
@@ -114,7 +114,7 @@ func _update_movement(delta: float) -> void:
 
 
 func _find_target() -> void:
-	_target = get_tree().get_first_node_in_group(&"player") as Node2D
+	_target = find_player()
 
 
 func _face(direction: float) -> void:

@@ -113,12 +113,12 @@ func take_damage(amount: int) -> void:
 
 
 func _update_target() -> void:
-	if is_instance_valid(_target) and _target.is_in_group(&"player"):
+	if is_instance_valid(_target) and can_target(_target):
 		var offset := _target.global_position - global_position
 		if absf(offset.x) <= detection_range and absf(offset.y) <= vertical_detection_range:
 			return
 	_target = null
-	var candidate := get_tree().get_first_node_in_group(&"player") as Node2D
+	var candidate := find_player()
 	if is_instance_valid(candidate):
 		var offset := candidate.global_position - global_position
 		if absf(offset.x) <= detection_range and absf(offset.y) <= vertical_detection_range:
@@ -163,7 +163,7 @@ func _face(direction: float) -> void:
 
 
 func _begin_attack() -> void:
-	if is_instance_valid(_target) and _target.is_in_group(&"player"):
+	if is_instance_valid(_target) and can_target(_target):
 		_face(_target.global_position.x - global_position.x)
 	_set_state(State.ATTACK)
 
@@ -171,7 +171,7 @@ func _begin_attack() -> void:
 func _should_end_roll(delta: float) -> bool:
 	if _state_time <= 0.0 or is_on_wall():
 		return true
-	if not is_instance_valid(_target) or not _target.is_in_group(&"player"):
+	if not is_instance_valid(_target) or not can_target(_target):
 		return false
 	var distance_ahead := (_target.global_position.x - global_position.x) * _facing
 	if distance_ahead >= 0.0:

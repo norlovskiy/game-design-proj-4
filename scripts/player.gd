@@ -75,9 +75,12 @@ var max_lives: int:
 var lives_remaining: int:
 	get:
 		return hp
+## Set while the player is somewhere enemies can't hurt or target them, such
+## as the shop.
+var is_safe := false
 var is_invincible: bool:
 	get:
-		return is_rolling or hit_invincibility_remaining > 0.0 or is_dead
+		return is_rolling or hit_invincibility_remaining > 0.0 or is_dead or is_safe
 
 
 func _ready() -> void:

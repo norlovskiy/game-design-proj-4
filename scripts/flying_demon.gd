@@ -93,11 +93,11 @@ func take_damage(amount: int) -> void:
 
 
 func _update_target() -> void:
-	if is_instance_valid(_target) and _target.is_in_group(&"player"):
+	if is_instance_valid(_target) and can_target(_target):
 		if global_position.distance_to(_target.global_position) <= disengage_range:
 			return
 	_target = null
-	var candidate := get_tree().get_first_node_in_group(&"player") as Node2D
+	var candidate := find_player()
 	if is_instance_valid(candidate) and global_position.distance_to(candidate.global_position) <= aggro_range:
 		_target = candidate
 

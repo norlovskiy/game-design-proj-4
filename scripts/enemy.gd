@@ -62,6 +62,17 @@ func _add_drop(drop: Node2D, at: Vector2) -> void:
 	parent.add_child.call_deferred(drop)
 
 
+## The player, or null when there is none or enemies must leave them alone.
+func find_player() -> Node2D:
+	var player := get_tree().get_first_node_in_group(&"player") as Node2D
+	return player if player != null and can_target(player) else null
+
+
+## Whether a node is a player that enemies are allowed to go after.
+func can_target(node: Node) -> bool:
+	return node.is_in_group(&"player") and node.get("is_safe") != true
+
+
 func apply_frost(duration: float, slow_multiplier: float = 0.5) -> void:
 	if health <= 0:
 		return
